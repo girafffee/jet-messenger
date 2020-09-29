@@ -1,0 +1,38 @@
+.jet-msg-general__loading {
+    border: 16px solid #f3f3f3;
+   /* Light grey */
+    border-top: 16px solid #066ea2;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin: 40px auto;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+   }
+    100% {
+        transform: rotate(360deg);
+   }
+}
+.jet-msg-general__none {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 350px;
+}
+.jet-msg-general__none .cx-vui-panel {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    padding: 1.3em;
+    height: 180px;
+}
+.jet-msg-general__none .cx-vui-panel .description {
+    font-size: 15px;
+    line-height: 23px;
+    color: #7b7e81;
+}

@@ -1,0 +1,61 @@
+#jet-msg__editor {
+    margin: 0;
+    padding: 1em;
+    height: 400px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+    textarea {
+        border: none;
+        border-right: 1px solid #ccc;
+        resize: none;
+        outline: none;
+        background-color: #f6f6f6;
+        font-size: 14px;
+        font-family: "Monaco", courier, monospace;
+        padding: 20px;
+    }
+    
+    textarea, div {
+        display: inline-block;
+        width: 49%;
+        height: 100%;
+        vertical-align: top;
+        box-sizing: border-box;
+        padding: 20px;
+        overflow: auto;
+    }    
+}
+
+.jet-msg-notifications {
+    
+    .cx-vui-panel {
+        padding: 1.3em;
+    }
+
+    .save-button {
+        text-align: right;
+    }
+
+    &__none {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 350px;
+
+        .cx-vui-panel {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-direction: column;
+            padding: 1.3em;
+            height: 180px;
+
+            .description {
+                font-size: 15px;
+                line-height: 23px;
+                color: #7B7E81;
+            }
+        }
+    }
+}
