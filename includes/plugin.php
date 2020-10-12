@@ -1,7 +1,6 @@
 <?php
 namespace JET_MSG;
 
-// If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
@@ -52,30 +51,34 @@ class Plugin {
        
         add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ], 0 );
         
-        $this->general_options          = new DB\General_Options_Model();
-        $this->general_notifications    = new DB\General_Notifications_Model();
-        $this->user_options             = new DB\Users_Notifications_Model();
-        $this->ajax_options             = new Admin\General_Options_Ajax();
-        $this->ajax_notifications       = new Admin\General_Notifications_Ajax();
-
-        // Init DB installer
-        $this->installer = new Jet_Messenger_DB_Install(
-            $this->general_options,
-            $this->general_notifications,
-            $this->user_options
-        );
-        
-        $this->telegram_manager = new Api\Telegram\Telegram_Manager();
+        $this->general_options          = new DB\Models\General_Options_Model();
+        $this->general_notifications    = new DB\Models\General_Notifications_Model();
+        $this->chats                    = new DB\Models\Chats_Model();
+        $this->private_notifications    = new DB\Models\Private_Notifications_Model();
+        new Admin\General_Options_Ajax();
+        new Admin\General_Notifications_Ajax();
+        new Admin\Private_Notifications_Ajax();
+        new Admin\Chats_Ajax();
 
         if ( is_admin() ) {
 
             $this->dashboard = new Admin\Dashboard( [
                 new Admin\Pages\General_Options_Page(),
                 new Admin\Pages\General_Notifications_Page(),
-                new Admin\Pages\Users_Notifications_Page()
+                new Admin\Pages\Private_Notifications_Page()
             ] );
         
         }
+         // Init DB installer
+         $this->installer = new Jet_Messenger_DB_Install(
+            $this->general_options,
+            $this->general_notifications,
+            $this->private_notifications,
+            $this->chats
+        );
+        
+        $this->telegram_manager = new Api\Telegram\Telegram_Manager();
+        
     }
 
     /**
@@ -84,9 +87,13 @@ class Plugin {
 	 * @return [type] [description]
 	 */
 	public function register_assets() {
-		$this->register_style( 'jet-msg-general-options-admin', 'admin/general-options.css' );
+        $this->register_style( 'jet-msg-general-options-admin', 'admin/general-options.css' );
         $this->register_style( 'jet-msg-general-notifications-admin', 'admin/general-notifications.css' );
+        $this->register_style( 'jet-msg-private-notifications-admin', 'admin/private-notifications.css' );
+
         wp_register_script( 'jet-msg-general-notifications-marked', 'https://unpkg.com/marked@0.3.6', [ 'wp-api-fetch' ], $this->version());
+        $this->register_script( 'jet-msg-notifications-repeater', 'admin/notification-repeater.js' );
+        $this->register_script( 'jet-msg-private-notifications', 'admin/private-notifications.js' );        
     }
     
     /**
@@ -97,13 +104,15 @@ class Plugin {
 	 * @return [type]            [description]
 	 */
 	public function register_script( $handle = null, $file_path = null ) {
-		return wp_register_script(
+		if ( !  wp_register_script(
 			$handle,
 			$this->plugin_url() . 'assets/js/' . $file_path,
 			array( 'wp-api-fetch' ),
 			$this->version(),
 			true
-		);
+		) ) {
+            error_log( printf('Cannot register the [%s] script', $handle) );
+        }
 	}
 
 	/**
@@ -153,6 +162,14 @@ class Plugin {
 
     public function plugin_url() {
         return $this->plugin_url;
+    }
+
+    public function rest_api_base() {
+	    return get_site_url( null, 'wp-json/' );
+    }
+
+    public function rest_api_route( $route ) {
+        return $this->rest_api_base() . $route;
     }
 
     /**

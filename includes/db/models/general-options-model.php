@@ -1,5 +1,7 @@
 <?php
-namespace JET_MSG\DB;
+namespace JET_MSG\DB\Models;
+
+use JET_MSG\DB\Base\Base_Model;
 
 /**
  * Database manager class
@@ -13,17 +15,18 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Define DB class
  */
-class General_Options_Model extends Base {
+class General_Options_Model extends Base_Model {
 
     /**
 	 * Returns table name
 	 * @return [type] [description]
 	 */
-	public $columns;
 
 	public $defaults = [
 		'status' => 'enabled'
 	];
+
+	public $rules;
 
 	public function get_active_bots() {
 		$sql = $this->select( 'id, bot_name' )
@@ -55,6 +58,38 @@ class General_Options_Model extends Base {
 		}
 	}
 
+	public function filter( $value, $column ) {
+	    $this->rules();
+
+	    if ( isset( $this->rules[ $column ] ) && is_callable( $this->rules[ $column ] ) ) {
+            return $this->rules[ $column ]( $value );
+        }
+
+	    return true;
+    }
+
+    public function rules() {
+	   $this->rules = [
+	        'bot_token' => [ $this, 'is_bot_token' ]
+        ];
+    }
+
+    public function is_bot_token( $value ) {
+	    $matches = [];
+        $pattern = '/[0-9]{9,11}:[a-zA-Z0-9_-]{35}/';
+
+        preg_match( $pattern, $value, $matches );
+        if ( empty( $matches ) && sizeof($matches) !== 1 ) {
+            return false;
+        }
+
+        $rubbish = explode( $matches[0], $value );
+        foreach ( $rubbish as $ruby ) {
+            if ( ! empty( $ruby ) ) return false;
+        }
+        return true;
+    }
+
 	
 	public function table_name() {
 		return 'general_options';
@@ -70,6 +105,7 @@ class General_Options_Model extends Base {
 			'bot_token'      		=> 'text',
             'bot_slug'    			=> 'varchar(100) NOT NULL',
 			'bot_name'    			=> 'varchar(100) NOT NULL',
+            'last_updated_id'       => 'bigint(20)',
 			'channel_id'			=> 'varchar(100)',
 			'channel_name'			=> 'varchar(100)',
             'bot_creator_user_id' 	=> 'bigint(20) DEFAULT NULL',

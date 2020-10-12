@@ -67,14 +67,14 @@ class Jet_Messenger_DB_Install {
         foreach ( $this->models as $model ) {
             if ( ! $this->is_exists[ $model->table() ] ) {
                 return false;
-            }
+            }   
         }
         return true;
     }
 
     public function models( $models ) {
         foreach ( $models as $model ) {
-            if ( $model instanceof DB\Base ) {
+            if ( $model instanceof DB\Base\Base_Model ) {
                 $this->models[] = $model;
                 $this->is_exists[ $model->table() ] = false;
             }
@@ -86,6 +86,6 @@ class Jet_Messenger_DB_Install {
             if ( ! $this->is_exists[ $model->table() ] ) {
                 $model->install_table();
             }
-        }
+        } 
     }
 }

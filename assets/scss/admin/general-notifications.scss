@@ -17,17 +17,28 @@
     
     textarea, div {
         display: inline-block;
-        width: 49%;
-        height: 100%;
-        vertical-align: top;
         box-sizing: border-box;
         padding: 20px;
         overflow: auto;
-    }    
+        height: 100%;
+        width: 39.5%;
+        vertical-align: top;
+    }
+
+    div.save-button{
+        width: 20%;
+        text-align: right;
+        position: relative;
+
+        button {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+    }
 }
 
 .jet-msg-notifications {
-    
     .cx-vui-panel {
         padding: 1.3em;
     }
@@ -57,5 +68,11 @@
                 color: #7B7E81;
             }
         }
+    }
+}
+
+.jet-msg-notifications-repeater {
+    .cx-vui-inner-panel {
+        background: #f1f1f1;
     }
 }

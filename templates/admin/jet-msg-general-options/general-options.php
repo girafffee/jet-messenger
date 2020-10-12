@@ -1,5 +1,5 @@
 <div class="wrap">
-	<h1 class="cx-vui-title"><?php esc_html_e( 'JetMessenger Options', 'jet-messenger' ); ?></h1>
+	<h1 class="cs-vui-title"><?php esc_html_e( 'JetMessenger', 'jet-messenger' ); ?></h1>
 
 	<div class="jet-msg-general__loading" v-if="isLoading"></div>
 	

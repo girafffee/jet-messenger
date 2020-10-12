@@ -1,0 +1,16 @@
+.jet-msg-private-chat .cx-vui-panel {
+    display: flex;
+    width: 60%;
+    margin: 0 auto 35px;
+}
+.jet-msg-private-chat .cx-vui-component {
+    flex: 6;
+}
+.jet-msg-private-chat .sync-button {
+    padding: 20px;
+    flex: 1;
+}
+.jet-msg-private-chat .chat-enabled {
+    font-size: 3em;
+    color: cadetblue;
+}

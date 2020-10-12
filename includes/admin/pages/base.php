@@ -104,7 +104,7 @@ abstract class Base {
 
 		if ( ! is_readable( $file ) ) {
 			return;
-		}
+		}		
 
 		ob_start();
 		include $file;
@@ -175,5 +175,45 @@ abstract class Base {
 			esc_url( admin_url( 'admin.php' ) )
 		);
 	}
+
+    public function get_active_bots_for_select() {
+        if ( ! jet_msg()->installer->checks_is_exists_secondary() ) return [];
+
+        $bots = jet_msg()->general_options->get_active_bots();
+
+        if ( empty( $bots ) ) return [];
+
+        $rows = [];
+        foreach ( $bots as $bot ) {
+            $row[ 'label' ] = $bot[ 'bot_name' ];
+            $row[ 'value' ] = $bot[ 'id' ];
+
+            $rows[ $bot[ 'id' ] ] = $row;
+        }
+
+        return $rows;
+    }
+
+    public function prepare_for_js_select( $fields ) {
+        $select = [];
+        foreach ( $fields as $value => $field_name ) {
+            if ( ! is_array( $field_name ) ) {
+                $select[] = [
+                    'label' => $field_name,
+                    'value' => $value
+                ];
+            }
+            else {
+                $row[ 'value' ] = $value;
+
+                foreach ($field_name as $key => $option) {
+                    $row[ $key ] = $option;
+                }
+                $select[ $value ] = $row;
+            }
+
+        }
+        return $select;
+    }
 
 }

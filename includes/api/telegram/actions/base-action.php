@@ -2,6 +2,8 @@
 
 namespace JET_MSG\Api\Telegram\Actions;
 
+use JET_MSG\Api\Telegram\Methods\Send_Message;
+
 /**
  * Telegram manager
  */
@@ -13,18 +15,33 @@ if ( ! defined( 'WPINC' ) ) {
 
 abstract class Base_Action {
 
+    public $do_action_on;
+    public $action_value;
+    public $message;
+    public $jet_msg_chat_id;
+    public $chat_id;
+
     public function __construct( $data ) {
         $this->parse( $data );
+        $this->set_chat_id();
 
-        add_action( $this->wp_action_name, [ $this, 'set_action' ] ); 
+        $this->maybe_add_action();
+    }
+
+    public function maybe_add_action() {
+        if ( $this->chat_id ) {
+            add_action( $this->wp_action_name, [ $this, 'set_action' ] );
+        }
     }
 
     protected function parse( $notification ) {
-        [
-            'do_action_on'  => $this->do_action_on,
-            'action_value'  => $this->action_value,
-            'message'       => $this->message
-        ] = $notification;
+        $set_keys = [ 'do_action_on', 'action_value', 'message', 'jet_msg_chat_id' ];
+
+        foreach ( $set_keys as $key ) {
+            if ( isset( $notification[ $key ] ) ) {
+                $this->$key = $notification[ $key ];
+            }
+        }
     }
 
     public function set_action() {
@@ -35,7 +52,83 @@ abstract class Base_Action {
         }        
     }
 
-    protected function send( $options ) {
-        jet_msg()->telegram_manager->send_message( $options );
+    protected function send() {
+        ( new Send_Message( [
+            'chat_id'       => $this->chat_id,
+            'text'          => $this->message,
+            'parse_mode'    => 'markdown'
+        ] ) )->execute();
     }
+
+    public function set_chat_id() {
+        $this->chat_id = $this->get_chat_id();
+    }
+
+    public function get_chat_id() {
+        if ( ! empty( $this->jet_msg_chat_id ) )
+        {
+            $chat = jet_msg()->chats->get_chat_by_id( $this->jet_msg_chat_id );
+
+            if ( ! empty( $chat ) && ! empty( $chat[ 'chat_id' ] ) ) {
+                return (int) $chat[ 'chat_id' ];
+            }
+            return false;
+        }
+        return jet_msg()->telegram_manager->channel_id;
+    }
+
+    public function set_dynamic_fields( $data_action ) {
+        $dynamic_fields = explode( '%', $this->message );
+
+        foreach ( $dynamic_fields as $index => $field ) {
+            if ( $this->isset_value_array_or_object( $data_action, $field )
+                && in_array( $field, $this->allowed_fields() ) )
+            {
+                $dynamic_fields[ $index ] = $this->get_value_array_or_object( $data_action, $field );
+
+                if ( array_key_exists( $field, $this->custom_filter_fields() ) ) {
+
+                    $dynamic_fields[ $index ] = $this->custom_filter_fields()[ $field ]( $dynamic_fields[ $index ] );
+                }
+            }
+        }
+        $this->message = implode( '', $dynamic_fields );
+    }
+
+    public function allowed_fields() {
+        return [];
+    }
+
+    public function custom_filter_fields() {
+        return [];
+    }
+
+    public function isset_value_array_or_object( $data, $field ) {
+        if ( is_array( $data ) ) {
+            return isset( $data[ $field ] );
+        }
+        return isset( $data->$field );
+    }
+
+    public function get_value_array_or_object( $data, $field ) {
+        if ( is_array( $data ) && isset( $data[ $field ] ) ) {
+            return $data[ $field ];
+        }
+        if ( isset( $data->$field ) ) {
+            return $data->$field;
+        }
+    }
+
+    public function get_author_name( $id ) {
+        $user = get_userdata( $id );
+        $name = [
+            $user->first_name,
+            $user->last_name,
+            '('.$user->user_login.')'
+        ];
+
+        return implode( ' ', $name );
+    }
+
+
 }

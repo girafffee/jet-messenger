@@ -1,6 +1,6 @@
 <?php
 
-namespace JET_MSG\DB;
+namespace JET_MSG\DB\Base;
 
 /**
  * MySql Query Builder
@@ -75,6 +75,25 @@ abstract class Simple_Query_Builder {
 
         $this->clear();
         return $sql;
+    }
+
+    public function generate_select_values( $tables ) {
+        $sql_fields = [];
+
+        foreach ( $tables as $alias => $values ) {
+            $alias = is_numeric( $alias ) ? $this->table() : $alias;
+
+            if ( is_array( $values ) ) {
+                foreach ( $values as $value ) {
+                    $sql_fields[] = "$alias.$value";
+                }
+            }
+            else {
+                $sql_fields[] = "$alias.$values";
+            }
+        }
+
+        return implode(', ', $sql_fields);
     }
 
     public function clear() {

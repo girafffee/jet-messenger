@@ -1,6 +1,6 @@
 <?php
 
-namespace JET_MSG\DB;
+namespace JET_MSG\DB\Base;
 
 /**
  * Database manager
@@ -13,7 +13,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 if ( ! class_exists( 'Jet_MSG_DB' ) ) {
 
-abstract class Base extends Simple_Query_Builder {
+abstract class Base_Model extends Simple_Query_Builder {
 
     /**
 	 * Check if booking DB table already exists
@@ -321,7 +321,29 @@ abstract class Base extends Simple_Query_Builder {
 	public function find_by() {
 		return [ 'id' ];
 	}
+
 	
+	public function inline_headers_of_column( $column ) {
+		$func = 'column__' . $column;
+		if ( is_callable( [ $this, $func ] ) ) {
+
+			return ("'" . implode( "','", array_keys( $this->$func() ) ) . "'");
+		}
+
+	}
+
+	public function wpdb_results( $sql, $method_result ) {
+        return $this->wpdb()->get_results( $sql, $method_result );
+    }
+
+    public function get_empty_columns() {
+	    $columns = $this->get_columns_schema();
+
+        foreach ( $columns as $key => $option ) {
+            $columns[ $key ] = '';
+        }
+        return $columns;
+    }
 
 }
 

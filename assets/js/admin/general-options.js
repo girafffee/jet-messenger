@@ -1,7 +1,8 @@
 (function () {
 
 	"use strict";
-	
+	let duration = 2500;
+
     new Vue({
 		el: '#jet-msg-general-options-page',
 		template: '#jet-msg-general-options',
@@ -36,7 +37,13 @@
 						self.$CXNotice.add( {
 							message: response.data.message,
 							type: 'success',
-							duration: 7000,
+							duration: duration,
+						} );
+					} else {
+						self.$CXNotice.add( {
+							message: response.data.message,
+							type: 'error',
+							duration: duration,
 						} );
 					}
 
@@ -45,7 +52,7 @@
 					self.$CXNotice.add( {
 						message: errorThrown,
 						type: 'error',
-						duration: 7000,
+						duration: duration,
 					} );
 
 				} );
@@ -66,7 +73,7 @@
 						self.$CXNotice.add( {
 							message: response.data.message,
 							type: 'success',
-							duration: 7000,
+							duration: duration,
 						} );
 
 						self.isSet = true;
@@ -78,7 +85,7 @@
 					self.$CXNotice.add( {
 						message: errorThrown,
 						type: 'error',
-						duration: 7000,
+						duration: duration,
 					} );
 
 				} );
@@ -108,7 +115,7 @@
 					self.$CXNotice.add( {
 						message: errorThrown,
 						type: 'error',
-						duration: 7000,
+						duration: duration,
 					} );
 
 				} );

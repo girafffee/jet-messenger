@@ -8,7 +8,7 @@ abstract class Base_Ajax_Manager {
 
     public $conditions;
     public $fields;
-    public $errors;
+    public $errors = [];
 
     public $mode;
     const JET_MSG_INSERT_MODE = 'insert_mode';
@@ -33,17 +33,44 @@ abstract class Base_Ajax_Manager {
 
             } 
             else if ( in_array( $column, $this->model->find_by() ) ) {
-                $this->conditions[ $column ] = $this->validate( $post_data[ $column ], $column );
+                if ( $this->validate( $post_data[ $column ], $column ) ) {
+
+                    $this->conditions[ $column ] = $post_data[ $column ];
+                } else {
+                    $this->errors[] = $column;
+                }
             }
             else {
-                $this->fields[ $column ] = $this->validate( $post_data[ $column ], $column );
+                if ( $this->validate( $post_data[ $column ], $column ) ) {
+
+                    $this->fields[ $column ] = $post_data[ $column ];
+                } else {
+                    $this->errors[] = $column;
+                }
             }
 
             if ( ! empty( $this->fields[ $column ] ) && is_callable( [ $this, 'on_update_'.$column ] ) ) {
-                [ $this, 'on_update_'.$column ]();
+                $func = 'on_update_'.$column;
+                $this->$func();
             }
         }
     }
+
+    public function set( $name_column, $value ) {
+        if ( in_array( $name_column, array_keys( $this->model->schema() ) ) ) {
+            $this->fields[ $name_column ] = $value;
+        }
+        return $this;
+    }
+    public function get( $name_column ) {
+        if ( in_array( $name_column, array_keys( $this->model->schema() ) )
+            && ! empty( $this->fields[ $name_column ] ) )
+        {
+            return $this->fields[ $name_column ];
+        }
+        return '';
+    }
+
 
     public function validate( $value, $column ) {
         
@@ -56,7 +83,7 @@ abstract class Base_Ajax_Manager {
     }
 
     public function filter( $value, $column ) {
-        return $value;
+        return true;
     }
 
     public function get_default( $option = "" ) {
@@ -101,4 +128,73 @@ abstract class Base_Ajax_Manager {
 
         return $conditions;
     }
+
+    public function ajax_delete_notification() {
+        if( ! isset( $_POST['data'] ) ) {
+            wp_send_json_error();
+            return;
+        }
+
+        $this->mode = $_POST['mode'];
+        $this->parse_data( $_POST['data'] );
+
+        if( $this->model->delete( $this->get_condition() ) ) {
+
+            wp_send_json_success( array(
+                'message'   => __( 'Notification has been removed.', 'jet-messenger' )
+            ) );
+            return;
+        }
+
+        wp_send_json_error( array(
+            'message' => __( 'Something was wrong...', 'jet-messenger' ),
+        ));
+    }
+
+    public function ajax_save_notification() {
+
+        if( ! isset( $_POST['data'] ) ) {
+            wp_send_json_error();
+            return;
+        }
+        $message = 'Notification saved!';
+
+        $this->mode = $_POST['mode'];
+        $this->parse_data( $_POST['data'] );
+
+        if( empty( $this->get_condition() ) &&
+            ( $inserted_id = $this->model->insert( $this->fields ) ) ) {
+
+            wp_send_json_success( array(
+                'message'   => __( $message, 'jet-messenger' ),
+                'id'        => $inserted_id
+            ) );
+            return;
+        }
+
+        $sql = $this->model->select('COUNT(*)')->where_equally( $this->get_condition() )->get_sql();
+
+        if ( $this->model->wpdb()->get_var( $sql ) ) {
+
+            $success = $this->model->update( $this->fields, $this->get_condition() );
+
+            if ( $success ) {
+                wp_send_json_success( array(
+                    'message' => __( $message, 'jet-messenger' ),
+                ) );
+                return;
+            }
+            else {
+                wp_send_json_error( [
+                    'message' => __( 'Update failed!', 'jet-messenger' ),
+                ] );
+                return;
+            }
+        }
+
+        wp_send_json_error( array(
+            'message' => __( 'Something was wrong...', 'jet-messenger' ),
+        ));
+    }
+
 }

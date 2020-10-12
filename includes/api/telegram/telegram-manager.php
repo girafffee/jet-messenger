@@ -15,35 +15,71 @@ class Telegram_Manager {
 
     public static $is_send = false;
 
-    private $token;
-    private $id;
+    public $bot_token = '';
+    private $id = '';
+    public $channel_id = '';
 
     public $slug = 'telegram';
-    public $notifications_data;
+    public $notifications;
+    public $private_notifications;
+
+    const REST_API_NAMESPACE = 'jet-messenger/v1';
 
     public function __construct() {
-        add_action( 'init', [ $this, 'init' ] );
+        add_action( 'init', [ $this, 'maybe_init' ] );
+        add_action( 'rest_api_init', [ $this, 'add_routes_rest_api' ] );
     }
 
     public function apiUrl( $method = '' ) {
-        return 'https://api.telegram.org/bot' . $this->token . '/' . $method;
+        return 'https://api.telegram.org/bot' . $this->bot_token . '/' . $method;
+    }
+
+
+    public function get_rest_api_routes() {
+        return [
+            '/message-endpoint' => [
+                'methods'    => 'GET',
+                'callback'  => [ $this, 'telegram_message_endpoint' ],
+            ]
+        ];
+    }
+
+    public function maybe_init() {
+        if ( jet_msg()->installer->checks_is_exists_secondary()
+            && $this->set_bot_data() )
+        {
+            $this->init();
+        }
     }
 
     public function init() {
-        if ( ! jet_msg()->installer->checks_is_exists_secondary() 
-        || ! $this->set_bot_data() 
-        || ! $this->set_notifications() ) {
-            return;    
-        }
+        $this->set_notifications();
+        $this->set_private_notifications();
+
         $this->attach_notifications();
+        $this->attach_private_notifications();
     }
 
     public function attach_notifications() {
+        $this->attach_notification_actions( $this->notifications );
+    }
 
-        foreach ( $this->notifications as $notif ) {
-            
-            $class_name = 'JET_MSG\\Api\\Telegram\\Actions\\' . $this->make_class_name( $notif['action'] );
-            new $class_name( $notif );
+    public function attach_private_notifications() {
+        $this->attach_notification_actions( $this->private_notifications );
+    }
+
+    public function attach_notification_actions( $notifications ) {
+        if ( empty( $notifications ) ) return;
+
+        $namespace = 'JET_MSG\\Api\\Telegram\\Actions\\';
+
+        foreach ( $notifications as $notif )
+        {
+            $class_name = $namespace . $this->make_class_name( $notif['action'] );
+
+            if ( class_exists( $class_name ) ) {
+                new $class_name( $notif );
+            }
         }
     }
 
@@ -57,26 +93,43 @@ class Telegram_Manager {
         return implode( '_', $action_class );
     }
 
+    public function add_routes_rest_api() {
+        foreach ( $this->get_rest_api_routes() as $route => $value ) {
+            register_rest_route( self::REST_API_NAMESPACE , $route , $value );
+        }
+    }
+
+    public function telegram_message_endpoint() {
+        $this->send_message( [ 'message' => 'Heelllooo!!' ] );
+    }
+
 
     public function set_notifications(){
         $this->notifications = jet_msg()->general_notifications->get_by_bot_id( $this->id );
-
         return ( ! empty( $this->notifications ) );
     }
 
+    public function set_private_notifications() {
+
+        $this->private_notifications = jet_msg()->private_notifications->get_by_bot_id( $this->id );
+        return ( ! empty( $this->private_notifications ) );
+    }
+
     public function set_bot_data() {
-        [ 
-            'bot_token'     => $this->token, 
-            'id'            => $this->id, 
-            'channel_id'    => $this->channel_id
+        $bot_data = jet_msg()->general_options->get_bot_by_slug( $this->slug );
+        $set_keys = [ 'bot_token', 'id', 'channel_id' ];
 
-        ] = jet_msg()->general_options->get_bot_by_slug( $this->slug );
+        foreach ( $set_keys as $key ) {
+            if ( isset( $bot_data[ $key ] ) ) {
+                $this->$key = $bot_data[ $key ];
+            }
+        }
 
-        return ( ! empty( $this->token ) );
+        return ( ! empty( $this->bot_token ) );
     }
 
     public function send_message( $options ) {
-       
+
         $ch = curl_init();
         curl_setopt_array(
             $ch,
@@ -96,11 +149,5 @@ class Telegram_Manager {
         return $this;
     }
 
-
-    public function get_chat_id() {
-        if ( ! $this->result_exec || ! $this->result_exec->ok ) return;
-
-        return (int) $this->result_exec->result->chat->id;
-    }
 }
 

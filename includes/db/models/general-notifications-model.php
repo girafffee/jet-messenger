@@ -1,5 +1,7 @@
 <?php
-namespace JET_MSG\DB;
+namespace JET_MSG\DB\Models;
+
+use JET_MSG\DB\Base\Base_Model;
 
 /**
  * Database manager class
@@ -13,19 +15,9 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Define DB class
  */
-class General_Notifications_Model extends Base {
+class General_Notifications_Model extends Base_Model {
 
-	public function after_create_table() {
-
-	}
-
-	public function get_by_bot_id( $id ) {
-		$sql = $this->select()
-				->where_equally( [ 'bot_id' => $id ] )
-				->get_sql();
-
-		return $this->wpdb()->get_results( $sql, ARRAY_A );	
-	}
+    use Notification_Trait;
 
     /**
 	 * Returns table name
@@ -34,10 +26,7 @@ class General_Notifications_Model extends Base {
 	public function table_name() {
 		return 'general_notifications';
 	}
-
-	public function column__action() {
-		return [
-			/**
+		/**
 			 * Turned it off because 
 			 * I could not fix sending two messages 
 			 * at once when the post update hook
@@ -46,6 +35,9 @@ class General_Notifications_Model extends Base {
 			// 	'label'		=> __( 'Update Post', 'jet-messenger' ),
 			// 	'relation'	=> [ 'id', 'author_id', 'taxonomy', 'post_type', 'relation_parent', 'relation_child' ]
 			// ],
+
+	public function column__action() {
+		return [
 			'new_post' 					=> [
 				'label'		=> __( 'New Post', 'jet-messenger' ),
 				'relation'	=> [ 'author_id', 'taxonomy', 'post_type', 'relation_parent', 'relation_child' ]
@@ -54,14 +46,6 @@ class General_Notifications_Model extends Base {
 				'label'		=> __( 'New Comment', 'jet-messenger' ),
 				'relation'	=> [ 'author_id', 'taxonomy', 'post_type', 'relation_parent', 'relation_child' ]
  			],
-			'jet_engine_form_submit'	=> [
-				'label'		=>  __( 'JetEngine Submit Form', 'jet-messenger' ),
-				'relation'	=> [ 'id', 'author_id' ]
-			],
-			'woo_place_order'			=> [
-				'label'		=> __( 'Woo Place Order', 'jet-messenger' ),
-				'relation'	=> [ 'id', 'author_id' ]
-			],
 			'datetime'					=> [
 				'label'		=> __( 'DateTime', 'jet-messenger' ),
 				'relation'	=> [ 'custom' ]
@@ -83,26 +67,12 @@ class General_Notifications_Model extends Base {
 			'post_type'			=> [
 				'label'		=>  __( 'Post Type', 'jet-messenger' ),
 			],
-			'relation_parent'	=> [
-				'label'		=> __( 'Relation Parent', 'jet-messenger' ),
-			],
-			'relation_child'	=> [
-				'label'		=> __( 'Relation Child', 'jet-messenger' ),
-			],
 			'custom'			=> [
 				'label'		=> __( 'Custom', 'jet-messenger' ),
 			],
 		];
 	}
 
-	public function inline_headers_of_column( $column ) {
-		$func = 'column__' . $column;
-		if ( is_callable( [ $this, $func ] ) ) {
-
-			return ("'" . implode( "','", array_keys( $this->$func() ) ) . "'");
-		}
-
-	}
 
     /**
 	 * Returns columns schema
@@ -111,8 +81,8 @@ class General_Notifications_Model extends Base {
 	public function schema() {
 		return [
 			'id'                => 'bigint(20) NOT NULL AUTO_INCREMENT',
-			'action'			=> "ENUM(". $this->inline_headers_of_column( 'action' ) .") NOT NULL DEFAULT 'update_post'",
-			'do_action_on'		=> "ENUM(". $this->inline_headers_of_column( 'do_action_on' ) .") NOT NULL DEFAULT 'custom'",
+			'action'			=> "ENUM(". $this->inline_headers_of_column( 'action' ) .") NOT NULL",
+			'do_action_on'		=> "ENUM(". $this->inline_headers_of_column( 'do_action_on' ) .") NOT NULL",
 			'action_value'		=> 'varchar(100)',
 			'bot_id'			=> 'int(3)',
 			'message'			=> 'text',
