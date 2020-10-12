@@ -27,7 +27,7 @@ class Jet_Messenger_DB_Install {
             wp_redirect( admin_url( 'plugins.php' ) , 301);
         }
 
-        if ( ! jet_msg()->dashboard->is_dashboard_page() ) {
+        if ( isset( jet_msg()->dashboard ) && ! jet_msg()->dashboard->is_dashboard_page() ) {
             $this->output_message();
         }
     }
