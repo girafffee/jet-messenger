@@ -21,12 +21,12 @@ _WP Plugin for sending notifications to your Messenger_
 На данный момент активны 2 вида хука, на которые срабатывают уведомления и условия, которые можно к ним применить:
 
  1. ***New Post***
-	 -- ***Author*** в Action Value нужно вписать **ID** автора поста
-	 -- ***Taxonomy*** в Action Value нужно вписать **SLUG** таксономии
-	 -- ***Post Type*** в Action Value нужно вписать **SLUG** пост-типа
+	 - ***Author*** в Action Value нужно вписать **ID** автора поста
+	 - ***Taxonomy*** в Action Value нужно вписать **SLUG** таксономии
+	 - ***Post Type*** в Action Value нужно вписать **SLUG** пост-типа
  2. ***New Comment***
-	 -- ***Author*** в Action Value нужно вписать **ID** автора поста, к которому был добавлен комментарий
-	 -- ***Taxonomy*** в Action Value нужно вписать **SLUG** таксономии поста, к которому был добавлен комментарий
-	 -- ***Post Type*** в Action Value нужно вписать **SLUG** пост-типа поста, к которому был добавлен комментарий
+	 - ***Author*** в Action Value нужно вписать **ID** автора поста, к которому был добавлен комментарий
+	 - ***Taxonomy*** в Action Value нужно вписать **SLUG** таксономии поста, к которому был добавлен комментарий
+	 - ***Post Type*** в Action Value нужно вписать **SLUG** пост-типа поста, к которому был добавлен комментарий
 	 
 *others will come later...*
