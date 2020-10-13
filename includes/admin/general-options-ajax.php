@@ -63,8 +63,6 @@ class General_Options_Ajax extends Base_Ajax_Manager {
     }
 
     public function on_update_channel_name() {
-        if ( $this->get( 'channel_id' ) ) return;
-
         $text = __( 'This channel has been successfully connected to the ', 'jet-messenger' ) . get_bloginfo( 'name' );
         $message = new Send_Message( [
             'chat_id'       => '@' . $this->fields[ 'channel_name' ],
