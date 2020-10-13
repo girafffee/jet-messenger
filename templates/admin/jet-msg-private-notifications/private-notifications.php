@@ -67,7 +67,7 @@
             _e( 'Preset Imported!', 'jet-messenger' );
             ?></div>
         <div slot="content">
-            <p>Send this code to this bot <a href="https://t.me/jet_messenger_bot" target="_blank">https://t.me/jet_messenger_bot</a></p>
+            <p>Send this code to your bot</p>
             {{ chatData.sync_code }}
         </div>
     </cx-vui-popup>

@@ -29,7 +29,7 @@ class General_Options_Model extends Base_Model {
 	public $rules;
 
 	public function get_active_bots() {
-		$sql = $this->select( 'id, bot_name' )
+		$sql = $this->select( 'id, bot_name, channel_name' )
 				->where_equally( [ 'status' => 'enabled' ] )
 				->where_not_equally( [ 'bot_token' => '' ] )
 				->get_sql();
