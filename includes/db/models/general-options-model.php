@@ -49,8 +49,6 @@ class General_Options_Model extends Base_Model {
 	public function after_create_table() {
 		$after_create_insert = [
 			['bot_slug' => 'telegram', 'bot_name' => 'Telegram Bot'],
-			['bot_slug' => 'viber', 'bot_name' => 'Viber Bot'],
-			['bot_slug' => 'whatsapp', 'bot_name' => 'Whatsapp Bot']
 		];
 
 		foreach($after_create_insert as $row) {
