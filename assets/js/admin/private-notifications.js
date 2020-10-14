@@ -27,6 +27,14 @@
                 bot_id: '',
                 message: '# hello',
                 collapsed: false,
+            },
+            emptyChat: {
+                bot_slug: "telegram",
+                chat_id: '',
+                chat_name: '',
+                chat_type: '',
+                status: '',
+                sync_code: ''
             }
         },
         mounted: function () {
@@ -141,6 +149,10 @@
                 var self = this;
 
                 let mode = self.chatData.id ? 'update_mode' : 'insert_mode';
+
+                if ( self.chatData.chat_name === '' ) {
+                    Object.assign( self.chatData, self.emptyChat );
+                }
 
                 jQuery.ajax({
                     url: ajaxurl,
