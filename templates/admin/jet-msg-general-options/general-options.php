@@ -26,7 +26,7 @@
 	<div class="cx-vui-panel" v-for="( bot, index ) in bots" v-else>
 		<cx-vui-input
 					:name="bot.bot_slug"
-					:label="bot.bot_name"
+					:label="getBotLabel( index )"
 					:description="'<?php _e( 'Input token your bot', 'jet-messenger' ); ?>'"
 					:wrapper-css="[ 'equalwidth' ]"
 					:size="'fullwidth'"
@@ -36,7 +36,7 @@
 
 		<cx-vui-input
 					:label="'<?php _e( 'Channel name', 'jet-messenger' ); ?>'"
-					:description="'<?php _e( 'Input your chanel name (without `@`)', 'jet-messenger' ); ?>'"
+					:description="'<?php _e( 'Input your channel name (without `@`)', 'jet-messenger' ); ?>'"
 					:wrapper-css="[ 'equalwidth' ]"
 					:size="'fullwidth'"
 					v-model.trim="bot.channel_name"

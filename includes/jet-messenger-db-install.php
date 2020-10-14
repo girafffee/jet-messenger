@@ -45,7 +45,7 @@ class Jet_Messenger_DB_Install {
 
     public function checks_is_exists() {
         foreach ( $this->models as $model ) {
-            if ( ! $model->is_table_exists() ) {
+            if ( ! $model->is_exists() ) {
                 return false;
             }
             $this->is_exists[ $model->table() ] = true;

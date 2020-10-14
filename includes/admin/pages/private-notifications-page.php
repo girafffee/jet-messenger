@@ -40,17 +40,10 @@ class Private_Notifications_Page extends Base {
 	 */
 	public function page_config() {
         $active_bots = $this->get_active_bots_for_select();
-        $chat = $this->get_chat_for_current_user();
 
         if ( empty( $active_bots ) ) {
             $fields = [
                 'isset_bots' 			=> false,
-                'return_to_options_url'	=> jet_msg()->dashboard->get_url_of( 'jet-msg-general-options' )
-            ];
-        }
-        else if ( ! $chat ) {
-            $fields = [
-                'isset_chat' 			=> false,
                 'return_to_options_url'	=> jet_msg()->dashboard->get_url_of( 'jet-msg-general-options' )
             ];
         }
@@ -62,8 +55,7 @@ class Private_Notifications_Page extends Base {
                 'active_bots_list'		=> $active_bots,
                 'chat_data'             => $this->get_chat_for_current_user(),
                 'isset_bots' 			=> true,
-                'isset_chat'            => true,
-                'return_to_options_url'	=> ''
+                'return_to_options_url'	=> jet_msg()->dashboard->get_url_of( 'jet-msg-general-options' )
             ];
         }
 

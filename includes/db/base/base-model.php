@@ -16,13 +16,28 @@ if ( ! class_exists( 'Jet_MSG_DB' ) ) {
 abstract class Base_Model extends Simple_Query_Builder {
 
     /**
-	 * Check if booking DB table already exists
+	 * Check if Jet Messenger DB tables already exists
 	 *
 	 * @var bool
 	 */
 	public $table_exists = null;
 
-	/**
+    /**
+     * Check if Jet Messenger DB columns already exists
+     *
+     * @var bool
+     */
+    public $columns_exists;
+
+    /**
+     * The names of the database columns that need to be added if
+     * they don't exist
+     *
+     * @var array
+     */
+    public $insert_columns;
+
+    /**
 	 *
 	 */
 	public $defaults = array();
@@ -184,8 +199,14 @@ abstract class Base_Model extends Simple_Query_Builder {
 			return;
 		}
 
-		$this->create_table();
-		$this->after_create_table();
+		if ( ! $this->table_exists ) {
+            $this->create_table();
+            $this->after_create_table();
+        }
+
+        if ( ! $this->columns_exists ) {
+            $this->insert_table_columns( $this->insert_columns );
+        }
     }
     
     /**
@@ -226,7 +247,7 @@ abstract class Base_Model extends Simple_Query_Builder {
 	 */
 	public function insert_table_columns( $columns = array() ) {
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || empty( $columns ) ) {
 			return;
 		}
 
@@ -252,10 +273,11 @@ abstract class Base_Model extends Simple_Query_Builder {
 	 * @return [type] [description]
 	 */
 	public function column_exists( $column ) {
-
 		$table = $this->table();
-		return $this->wpdb()->query( "SHOW COLUMNS FROM `$table` LIKE '$column'" );
+		$this->columns_exists = $this->wpdb()->query( "SHOW COLUMNS FROM `$table` LIKE '$column'" );
+		$this->insert_columns[] = $column;
 
+		return $this->columns_exists;
 	}
 
 	/**
@@ -343,6 +365,10 @@ abstract class Base_Model extends Simple_Query_Builder {
             $columns[ $key ] = '';
         }
         return $columns;
+    }
+
+    public function is_exists() {
+        return $this->is_table_exists();
     }
 
 }

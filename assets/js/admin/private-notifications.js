@@ -20,7 +20,6 @@
             showSyncButton: false,
             showEnabledIcon: false,
             issetBots: window.JetMSGConfig.isset_bots,
-            issetChat: window.JetMSGConfig.isset_chat,
             emptyNotification: {
                 action: '',
                 do_action_on: '',
@@ -28,27 +27,26 @@
                 bot_id: '',
                 message: '# hello',
                 collapsed: false,
-                jet_msg_chat_id:  window.JetMSGConfig.chat_data.id,
             }
         },
-        computed: {
-            isFullData() {
-                return ( this.issetBots && this.issetChat );
-            },
-            isShowButton() {
-                return Boolean(
-                    ( this.chatData.id && this.chatData.status !== 'enabled')
-                    || this.showSyncButton
-                );
-            },
-            isStatusEnabled() {
-                return Boolean( this.chatData.status === 'enabled' || this.showEnabledIcon );
-            }
+        mounted: function () {
+		    this.emptyNotification.jet_msg_chat_id = this.chatData.id
         },
+
         methods: {
 
             returnToGeneral() {
                 document.location.href = window.JetMSGConfig.return_to_options_url;
+            },
+
+            getBotLabel() {
+                let botData = this.notifData.botsList[ '1' ];
+                return botData.label + '@' + botData.name;
+            },
+
+            getBotUrl() {
+                let botData = this.notifData.botsList[ '1' ];
+                return 'https://t.me/' + botData.name;
             },
 
             isSynced() {
@@ -71,6 +69,7 @@
                         self.showPopup = false;
                         self.showSyncButton = false;
                         self.showEnabledIcon = true;
+                        self.chatData.sync_code = null;
 
                         self.$CXNotice.add( {
                             message: response.data.message,
@@ -163,8 +162,11 @@
 
                         if ( mode === 'insert_mode' ){
                             self.attachInsertedId( response.data.id, self.chatData );
-                            self.showSyncButton = true;
+                            self.emptyNotification.jet_msg_chat_id = response.data.id;
                         }
+                        self.chatData.sync_code = null;
+                        self.showSyncButton = true;
+                        self.showEnabledIcon = false;
                     }
                     else {
                         self.$CXNotice.add( {

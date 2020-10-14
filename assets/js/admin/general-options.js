@@ -8,7 +8,12 @@
 		template: '#jet-msg-general-options',
 		data: {
 			bots: window.JetMSGConfig.bots_list,
-			isSet: window.JetMSGConfig.is_set         
+			isSet: window.JetMSGConfig.is_set,
+			defaultLabels: {
+				telegram: 'Telegram Bot',
+				viber: 'Viber Bot',
+				whatsapp: 'WhatsApp Bot'
+			}
 		},
 		computed: {
 			isLoading: function() {
@@ -19,6 +24,11 @@
 			//this.getBots();			
 		},
         methods: {
+			getBotLabel( index ) {
+				let bot = this.bots[ index ];
+
+				return ( bot.bot_label ) ? bot.bot_label : this.defaultLabels[ bot.bot_slug ];
+			},
             updateBot: function( index ) {
 				var self = this;
 				var bot = self.bots[ index ];
@@ -40,6 +50,9 @@
 							duration: duration,
 						} );
 					} else {
+						if ( ! response.data ) {
+							return;
+						}
 						self.$CXNotice.add( {
 							message: response.data.message,
 							type: 'error',

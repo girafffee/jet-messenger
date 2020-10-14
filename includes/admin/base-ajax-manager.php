@@ -9,6 +9,20 @@ abstract class Base_Ajax_Manager {
     public $conditions;
     public $fields;
     public $errors = [];
+    public $messages = [
+        'insert' => [
+            'success'   => 'Inserted!',
+            'fail'      => 'Insert failed.'
+        ],
+        'update' => [
+            'success'   => 'Updated!',
+            'fail'      => 'Update failed.'
+        ],
+        'delete' => [
+            'success'   => 'Removed!',
+            'fail'      => 'Remove failed.'
+        ]
+    ];
 
     public $mode;
     const JET_MSG_INSERT_MODE = 'insert_mode';
@@ -56,7 +70,7 @@ abstract class Base_Ajax_Manager {
         }
     }
 
-    public function set( $name_column, $value ) {
+    public function set( $name_column, $value = null ) {
         if ( in_array( $name_column, array_keys( $this->model->schema() ) ) ) {
             $this->fields[ $name_column ] = $value;
         }
@@ -129,7 +143,7 @@ abstract class Base_Ajax_Manager {
         return $conditions;
     }
 
-    public function ajax_delete_notification() {
+    public function ajax_delete_data() {
         if( ! isset( $_POST['data'] ) ) {
             wp_send_json_error();
             return;
@@ -141,37 +155,50 @@ abstract class Base_Ajax_Manager {
         if( $this->model->delete( $this->get_condition() ) ) {
 
             wp_send_json_success( array(
-                'message'   => __( 'Notification has been removed.', 'jet-messenger' )
+                'message'   => $this->messages[ 'delete' ][ 'success' ]
             ) );
             return;
         }
 
         wp_send_json_error( array(
-            'message' => __( 'Something was wrong...', 'jet-messenger' ),
+            'message' => $this->messages[ 'delete' ][ 'fail' ],
         ));
     }
 
-    public function ajax_save_notification() {
+    public function ajax_save_data() {
 
         if( ! isset( $_POST['data'] ) ) {
             wp_send_json_error();
             return;
         }
-        $message = 'Notification saved!';
-
         $this->mode = $_POST['mode'];
         $this->parse_data( $_POST['data'] );
+
+        if ( $this->insert_with_ajax() ) {
+            return;
+        }
+
+        if ( ! $this->update_with_ajax() ) {
+            wp_send_json_error( array(
+                'message' => __( 'Something was wrong...', 'jet-messenger' ),
+            ));
+        }
+    }
+
+    public function insert_with_ajax() {
 
         if( empty( $this->get_condition() ) &&
             ( $inserted_id = $this->model->insert( $this->fields ) ) ) {
 
             wp_send_json_success( array(
-                'message'   => __( $message, 'jet-messenger' ),
+                'message'   => $this->messages[ 'insert' ][ 'success' ],
                 'id'        => $inserted_id
             ) );
-            return;
+            return true;
         }
+    }
 
+    public function update_with_ajax() {
         $sql = $this->model->select('COUNT(*)')->where_equally( $this->get_condition() )->get_sql();
 
         if ( $this->model->wpdb()->get_var( $sql ) ) {
@@ -180,21 +207,18 @@ abstract class Base_Ajax_Manager {
 
             if ( $success ) {
                 wp_send_json_success( array(
-                    'message' => __( $message, 'jet-messenger' ),
+                    'message' => $this->messages[ 'update' ][ 'success' ],
                 ) );
-                return;
+                return true;
             }
             else {
                 wp_send_json_error( [
-                    'message' => __( 'Update failed!', 'jet-messenger' ),
+                    'message' => $this->messages[ 'update' ][ 'fail' ],
                 ] );
-                return;
+                return false;
             }
         }
-
-        wp_send_json_error( array(
-            'message' => __( 'Something was wrong...', 'jet-messenger' ),
-        ));
+        return false;
     }
 
 }

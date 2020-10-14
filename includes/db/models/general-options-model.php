@@ -29,7 +29,7 @@ class General_Options_Model extends Base_Model {
 	public $rules;
 
 	public function get_active_bots() {
-		$sql = $this->select( 'id, bot_name, channel_name' )
+		$sql = $this->select( 'id, bot_label, bot_name' )
 				->where_equally( [ 'status' => 'enabled' ] )
 				->where_not_equally( [ 'bot_token' => '' ] )
 				->get_sql();
@@ -88,8 +88,13 @@ class General_Options_Model extends Base_Model {
         return true;
     }
 
-	
-	public function table_name() {
+    public function is_exists()
+    {
+        return parent::is_exists() && $this->column_exists( 'bot_label' );
+    }
+
+
+    public function table_name() {
 		return 'general_options';
 	}
 
@@ -103,6 +108,7 @@ class General_Options_Model extends Base_Model {
 			'bot_token'      		=> 'text',
             'bot_slug'    			=> 'varchar(100) NOT NULL',
 			'bot_name'    			=> 'varchar(100) NOT NULL',
+            'bot_label'             => 'text',
             'last_updated_id'       => 'bigint(20)',
 			'channel_id'			=> 'varchar(100)',
 			'channel_name'			=> 'varchar(100)',

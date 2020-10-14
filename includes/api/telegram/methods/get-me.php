@@ -1,5 +1,6 @@
 <?php
 
+
 namespace JET_MSG\Api\Telegram\Methods;
 
 /**
@@ -11,8 +12,8 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-class Send_Message extends Base_Method
+class Get_Me extends Base_Method
 {
-    public $method_name = 'sendMessage';
+    public $method_name = 'getMe';
 
 }

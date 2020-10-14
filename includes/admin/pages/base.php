@@ -185,7 +185,8 @@ abstract class Base {
 
         $rows = [];
         foreach ( $bots as $bot ) {
-			$row[ 'label' ] = $bot[ 'bot_name' ];
+            $row[ 'label' ] = $bot[ 'bot_label' ];
+            $row[ 'name' ]  = $bot[ 'bot_name' ];
             $row[ 'value' ] = $bot[ 'id' ];
 
             $rows[ $bot[ 'id' ] ] = $row;

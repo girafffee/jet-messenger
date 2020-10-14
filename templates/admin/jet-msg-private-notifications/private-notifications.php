@@ -16,13 +16,13 @@
                 <cx-vui-button
                         @click="syncChat"
                         button-style="accent"
-                        v-if="isShowButton"
+                        v-if="showSyncButton || chatData.status === 'disabled' || chatData.status === 'pending'"
                 >
                     <span slot="label"><?php esc_html_e( 'Sync', 'jet-messenger' ); ?>
                     </span>
                 </cx-vui-button>
 
-                <span class="dashicons dashicons-saved chat-enabled" v-else-if="isStatusEnabled"></span>
+                <span class="dashicons dashicons-saved chat-enabled" v-else-if="showEnabledIcon || chatData.status === 'enabled'"></span>
             </div>
 
         </div>
@@ -34,10 +34,10 @@
             @save-notification="saveNotification"
             :delete-ajax-hook="deleteNotification"
             :default-notif-data="emptyNotification"
-            v-if="isFullData"
+            v-if="showEnabledIcon || chatData.status === 'enabled'"
     ></jet-msg-notifications-repeater>
 
-    <div class="jet-msg-notifications__none" v-else>
+    <div class="jet-msg-notifications__none" v-else-if="!issetBots">
         <div class="cx-vui-panel">
             <div class="description">
                 <?php _e(
@@ -57,6 +57,17 @@
         </div>
     </div>
 
+    <div class="jet-msg-notifications__none" v-else-if="!chatData.id">
+        <div class="cx-vui-panel">
+            <div class="description">
+                <?php _e(
+                    'Please sync your Telegram account, input your @username to field and send Code to Bot',
+                    'jet-messenger' );
+                ?>
+            </div>
+        </div>
+    </div>
+
     <cx-vui-popup
             v-model="showPopup"
             body-width="600px"
@@ -67,7 +78,7 @@
             _e( 'Preset Imported!', 'jet-messenger' );
             ?></div>
         <div slot="content">
-            <p>Send this code to your bot</p>
+            <p>Send this code to <a :href="getBotUrl()" target="_blank">{{ getBotLabel() }}</a></p>
             {{ chatData.sync_code }}
         </div>
     </cx-vui-popup>

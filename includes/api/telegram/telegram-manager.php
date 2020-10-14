@@ -128,26 +128,5 @@ class Telegram_Manager {
         return ( ! empty( $this->bot_token ) );
     }
 
-    public function send_message( $options ) {
-
-        $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            array(
-                CURLOPT_URL => $this->apiUrl('sendMessage'),
-                CURLOPT_POST => TRUE,
-                CURLOPT_RETURNTRANSFER => TRUE,
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_POSTFIELDS => array(
-                    'chat_id'       => isset( $options[ 'id' ] ) ? $options[ 'id' ] : $this->channel_id,
-                    'text'          => $options[ 'message' ],
-                    'parse_mode'    => 'markdown'
-                ),
-            )
-        );
-        $this->result_exec = json_decode( curl_exec($ch) );
-        return $this;
-    }
-
 }
 

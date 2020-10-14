@@ -4,16 +4,29 @@
 namespace JET_MSG\Api\Telegram\Methods;
 
 
-class Base_Method
+use JET_MSG\Admin\Helpers\Curl_Helper;
+
+abstract class Base_Method
 {
     public $manager;
     public $params;
     public $response;
     public $found_message;
+    public $method_name;
+    public $dynamic_token_isset = true;
 
-    public function __construct( $options = [], $token = '' ) {
+    public function __construct( $options = [], $token = false ) {
         $this->set_manager( $token );
         $this->params   = $options;
+    }
+
+    public function execute() {
+        if ( ! $this->can_execute() ) return $this;
+
+        $curl = new Curl_Helper( $this->manager->apiUrl( $this->method_name ) );
+
+        $this->set_response( $curl->fields( $this->params )->execute() );
+        return $this;
     }
 
     public function is_ok() {
@@ -27,12 +40,19 @@ class Base_Method
         $this->response = json_decode( $response );
     }
 
-    public function set_manager( $token = '' ) {
+    public function set_manager( $token = false ) {
         $this->manager = jet_msg()->telegram_manager;
 
-        if( ! empty( $token ) ) {
+        if( $token === '' ) {
+            $this->dynamic_token_isset = false;
+        }
+        else if ( $token !== false ) {
             $this->manager->bot_token = $token;
         }
+    }
+
+    public function can_execute() {
+        return $this->dynamic_token_isset;
     }
 
     public function get_result( $index = 0 ) {
