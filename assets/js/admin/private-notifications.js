@@ -31,7 +31,6 @@
             emptyChat: {
                 bot_slug: "telegram",
                 chat_id: '',
-                chat_name: '',
                 chat_type: '',
                 status: '',
                 sync_code: ''
@@ -77,7 +76,6 @@
                         self.showPopup = false;
                         self.showSyncButton = false;
                         self.showEnabledIcon = true;
-                        self.chatData.sync_code = null;
 
                         self.$CXNotice.add( {
                             message: response.data.message,
@@ -150,9 +148,7 @@
 
                 let mode = self.chatData.id ? 'update_mode' : 'insert_mode';
 
-                if ( self.chatData.chat_name === '' ) {
-                    Object.assign( self.chatData, self.emptyChat );
-                }
+                Object.assign( self.chatData, self.emptyChat );
 
                 jQuery.ajax({
                     url: ajaxurl,
@@ -176,7 +172,6 @@
                             self.attachInsertedId( response.data.id, self.chatData );
                             self.emptyNotification.jet_msg_chat_id = response.data.id;
                         }
-                        self.chatData.sync_code = null;
                         self.showSyncButton = true;
                         self.showEnabledIcon = false;
                     }
