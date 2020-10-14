@@ -20,6 +20,8 @@ abstract class Base_Action {
     public $message;
     public $jet_msg_chat_id;
     public $chat_id;
+    public $wp_action_name;
+    public $count_args = 3;
 
     public function __construct( $data ) {
         $this->parse( $data );
@@ -48,7 +50,7 @@ abstract class Base_Action {
     
         $call_func = 'call_on_' . $this->do_action_on;
         if( is_callable( [ $this, $call_func ] ) ) {
-            add_action( $this->wp_action_name, [ $this, $call_func ], 20, 3 );
+            add_action( $this->wp_action_name, [ $this, $call_func ], 20, $this->count_args );
         }        
     }
 
@@ -56,7 +58,7 @@ abstract class Base_Action {
         ( new Send_Message( [
             'chat_id'       => $this->chat_id,
             'text'          => $this->message,
-            'parse_mode'    => 'markdown'
+            'parse_mode'    => 'Markdown'
         ] ) )->execute();
     }
 

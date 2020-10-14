@@ -21,17 +21,8 @@ class Update_Post extends Action_Post_Manager {
     //     [ $this, 'set_action' ](); 
     // }
 
-    public function call_on_id( $post_ID, $post, $update ) {
-        $this->current_post = $post;
-     
-        if ( wp_is_post_revision( $post_id ) 
-        || $this->current_post->post_status != 'publish' 
-        || $this->current_post->ID != $this->action_value  || ! $update) {
-            return;
-        }
+    public function call_on_id(  ) {
 
-        $this->set_dynamic_fields();
-        $this->send( [ 'message' => $this->message ] );
         
         //remove_action( $this->wp_action_name, [ $this, __FUNCTION__ ], -999 );
     }
