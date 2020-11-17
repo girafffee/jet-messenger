@@ -27,7 +27,7 @@ class Telegram_Manager {
 
     public function __construct() {
         add_action( 'init', [ $this, 'maybe_init' ] );
-        add_action( 'rest_api_init', [ $this, 'add_routes_rest_api' ] );
+        //add_action( 'rest_api_init', [ $this, 'add_routes_rest_api' ] );
     }
 
     public function apiUrl( $method = '' ) {
@@ -97,10 +97,6 @@ class Telegram_Manager {
         foreach ( $this->get_rest_api_routes() as $route => $value ) {
             register_rest_route( self::REST_API_NAMESPACE , $route , $value );
         }
-    }
-
-    public function telegram_message_endpoint() {
-        $this->send_message( [ 'message' => 'Heelllooo!!' ] );
     }
 
 

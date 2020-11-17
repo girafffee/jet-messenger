@@ -27,7 +27,7 @@ class Jet_Engine_Form_Submit extends Base_Action
         if ( $this->form_object->form == $this->action_value )
         {
             $this->set_dynamic_fields( $this->form_object->notifcations->data );
-            $this->send();
+            $this->send()->response;
         }
     }
 
@@ -44,6 +44,8 @@ class Jet_Engine_Form_Submit extends Base_Action
     }
 
     public function allowed_fields() {
-        return array_keys( $this->form_object->notifcations->data );
+        $form_fields = array_keys( $this->form_object->notifcations->data );
+
+        return $form_fields;
     }
 }

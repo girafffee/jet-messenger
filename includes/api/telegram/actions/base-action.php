@@ -3,6 +3,7 @@
 namespace JET_MSG\Api\Telegram\Actions;
 
 use JET_MSG\Api\Telegram\Methods\Send_Message;
+use JET_MSG\Factory;
 
 /**
  * Telegram manager
@@ -55,10 +56,10 @@ abstract class Base_Action {
     }
 
     protected function send() {
-        ( new Send_Message( [
+        return ( new Send_Message( [
             'chat_id'       => $this->chat_id,
             'text'          => $this->message,
-            'parse_mode'    => 'Markdown'
+            'parse_mode'    => 'html'
         ] ) )->execute();
     }
 
@@ -81,20 +82,41 @@ abstract class Base_Action {
 
     public function set_dynamic_fields( $data_action ) {
         $dynamic_fields = explode( '%', $this->message );
+        $factory = new Factory( 'JET_MSG\\Filters\\' );
 
         foreach ( $dynamic_fields as $index => $field ) {
-            if ( $this->isset_value_array_or_object( $data_action, $field )
-                && in_array( $field, $this->allowed_fields() ) )
+            $parsed_field = explode( '|', $field );
+            $field_name = $parsed_field[0];
+            unset( $parsed_field[0] );
+
+            $filters = $factory->add( $parsed_field );
+
+            if ( $this->isset_value_array_or_object( $data_action, $field_name )
+                && in_array( $field_name, $this->allowed_fields() ) )
             {
-                $dynamic_fields[ $index ] = $this->get_value_array_or_object( $data_action, $field );
+                $dynamic_fields[ $index ] = $this->get_value_array_or_object( $data_action, $field_name );
 
-                if ( array_key_exists( $field, $this->custom_filter_fields() ) ) {
+                if ( array_key_exists( $field_name, $this->custom_filter_fields() ) ) {
 
-                    $dynamic_fields[ $index ] = $this->custom_filter_fields()[ $field ]( $dynamic_fields[ $index ] );
+                    $dynamic_fields[ $index ] = $this->custom_filter_fields()[ $field_name ]( $dynamic_fields[ $index ] );
                 }
+
+                $dynamic_fields[ $index ] = $this->parse_filters( $filters, $dynamic_fields[ $index ] );
             }
         }
         $this->message = implode( '', $dynamic_fields );
+    }
+
+    public function parse_filters( array $filters, $value ) {
+        if ( empty( $filters ) ) {
+            return $value;
+        }
+
+        foreach ( $filters as $filter ) {
+            $value = $filter->filter( $value );
+        }
+
+        return $value;
     }
 
     public function allowed_fields() {
