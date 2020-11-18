@@ -15,8 +15,10 @@
                 type: Object,
                 default: {
                     action: '',
-                    do_action_on: '',
-                    action_value: '',
+                    condition: {
+                        action_value: '',
+                        do_action_on: '',
+                    },
                     bot_id: '',
                     message: '# hello',
                     collapsed: false,
@@ -115,8 +117,13 @@
             },
 
             addNewNotification: function() {
-                let emptyNotification = Object.assign( {}, this.notificationDefault );
-                this.settings.notifications.push( emptyNotification );
+                //let emptyNotification = Object.assign( {},  );
+                this.settings.notifications.push( { ...this.notificationDefault } );
+            },
+
+            addNewCondition: function( index ) {
+                //let emptyNotification = Object.assign( {},  );
+                this.settings.notifications[ index ].conditions.push( { ...this.notificationDefault.condition } );
             },
 
             cloneNotification( index ) {

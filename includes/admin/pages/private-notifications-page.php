@@ -52,6 +52,7 @@ class Private_Notifications_Page extends Base {
                 'actions_list'			=> $this->prepare_for_js_select( jet_msg()->private_notifications->column__action() ),
                 'actions_on'			=> $this->prepare_for_js_select( jet_msg()->private_notifications->column__do_action_on() ),
                 'notifications_list'	=> jet_msg()->private_notifications->select_all_for_current_user(),
+                'conditions'            => array(),
                 'active_bots_list'		=> $active_bots,
                 'chat_data'             => $this->get_chat_for_current_user(),
                 'isset_bots' 			=> true,

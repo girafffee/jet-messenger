@@ -52,6 +52,7 @@ class General_Notifications_Page extends Base {
 				'actions_list'			=> $this->prepare_for_js_select( jet_msg()->general_notifications->column__action() ),
 				'actions_on'			=> $this->prepare_for_js_select( jet_msg()->general_notifications->column__do_action_on() ),
 				'notifications_list'	=> jet_msg()->general_notifications->select_all(),
+                'conditions'            => array(),
 				'active_bots_list'		=> $active_bots,
 				'isset_bots' 			=> true,
 			];

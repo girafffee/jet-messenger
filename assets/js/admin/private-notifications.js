@@ -10,10 +10,11 @@
         template: '#jet-msg-private-notifications',
         data: {
             notifData: {
-                botsList: window.JetMSGConfig.active_bots_list,
-                actionsList: window.JetMSGConfig.actions_list,
-                actionsOn: window.JetMSGConfig.actions_on,
-                notifications: window.JetMSGConfig.notifications_list,
+                botsList:       window.JetMSGConfig.active_bots_list,
+                actionsList:    window.JetMSGConfig.actions_list,
+                actionsOn:      window.JetMSGConfig.actions_on,
+                notifications:  window.JetMSGConfig.notifications_list,
+                conditions:     window.JetMSGConfig.conditions
             },
             chatData : window.JetMSGConfig.chat_data,
             showPopup: false,

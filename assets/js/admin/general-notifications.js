@@ -10,15 +10,13 @@
         template: '#jet-msg-general-notifications',
         data: {
             notifData: {
-                botsList: window.JetMSGConfig.active_bots_list,
-                actionsList: window.JetMSGConfig.actions_list,
-                actionsOn: window.JetMSGConfig.actions_on,  
-                notifications: window.JetMSGConfig.notifications_list,
-                issetBots: window.JetMSGConfig.isset_bots
-            },            
-            
+                botsList:       window.JetMSGConfig.active_bots_list,
+                actionsList:    window.JetMSGConfig.actions_list,
+                actionsOn:      window.JetMSGConfig.actions_on,
+                notifications:  window.JetMSGConfig.notifications_list,
+                conditions:     window.JetMSGConfig.conditions
+            },
         },
-
         methods: {
             returnToGeneral() {
                 document.location.href = window.JetMSGConfig.return_to_options_url;
