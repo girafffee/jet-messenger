@@ -104,7 +104,7 @@ abstract class Base_Action {
                 $dynamic_fields[ $index ] = $this->parse_filters( $filters, $dynamic_fields[ $index ] );
             }
         }
-        $this->message = implode( '', $dynamic_fields );
+        $this->message = strip_tags( implode( '', $dynamic_fields ) );
     }
 
     public function parse_filters( array $filters, $value ) {
