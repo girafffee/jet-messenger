@@ -212,7 +212,6 @@ abstract class Base {
                 }
                 $select[ $value ] = $row;
             }
-
         }
         return $select;
     }

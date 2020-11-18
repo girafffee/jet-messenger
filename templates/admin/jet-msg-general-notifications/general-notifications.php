@@ -24,7 +24,7 @@
 
 	<jet-msg-notifications-repeater
 		:settings-prop="notifData"
-        :delete-ajax-hook="deleteNotification"
+        :delete-ajax-hook="deleteNotification()"
         @save-notification="saveNotification"
 		v-else
 	></jet-msg-notifications-repeater>

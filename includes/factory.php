@@ -10,18 +10,18 @@ class Factory
         $this->namespace = $namespace;
     }
 
-    public function add( array $filters = array() ) {
-        if ( empty( $filters ) ) {
-            return $filters;
+    public function add( array $classes = array() ) {
+        if ( empty( $classes ) ) {
+            return $classes;
         }
 
-        foreach ( $filters as $index => $filter ) {
-            $class_name = $this->namespace . Tools::make_class_name( $filter );
+        foreach ( $classes as $index => $name ) {
+            $class_name = $this->namespace . Tools::make_class_name( $name );
 
-            $filters[ $index ] = new $class_name();
+            $classes[ $index ] = new $class_name();
         }
 
-        return $filters;
+        return $classes;
     }
 
 

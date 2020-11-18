@@ -11,32 +11,41 @@
 				type: Object,
 				default: {},
 			},
-            defaultNotifData: {
-                type: Object,
-                default: {
-                    action: '',
-                    condition: {
-                        action_value: '',
-                        do_action_on: '',
-                    },
-                    bot_id: '',
-                    message: '# hello',
-                    collapsed: false,
-                },
-            },
+            chatId: Number,
             deleteAjaxHook: String,
         },
 
         data: function () {
             return {
                 settings: this.settingsProp,
-                notificationDefault: this.defaultNotifData,
+                notificationDefault: {
+                    action: '',
+                    conditions: [ {
+                        action_value: '',
+                        do_action_on: '',
+                    } ],
+                    bot_id: '',
+                    message: 'Hello world',
+                    jet_msg_chat_id: this.chatId,
+                    collapsed: false,
+                },
+                actionsList: this.prepareForSelectOptions( this.settingsProp.actionsList ),
+                botsList: this.prepareForSelectOptions( this.settingsProp.botsList )
             };
         },
         mounted: function() {
             //
         },
         methods: {
+
+		    prepareForSelectOptions( object ) {
+		        const values = Object.values( object );
+
+		        return values.map( ( { value, label } ) => {
+		            return { value, label };
+                } );
+            },
+
             isValuesReady: function ( index ) {
                 let notif = this.settings.notifications[ index ];
                 if ( ! notif ) return;
@@ -69,11 +78,12 @@
                 if ( notif.action === '' ) {
                     return self.settings.actionsOn;
                 }
+
                 let relations = self.settings.actionsList[ notif.action ].relation;
                 let triggers = [];
                 
                 for ( let name in self.settings.actionsOn ) {
-                    if ( relations.includes( name ) ) {
+                    if ( self.settings.actionsOn.hasOwnProperty( name ) && relations.includes( name ) ) {
                         triggers.push( self.settings.actionsOn[ name ] );
                     }
                 }
@@ -117,13 +127,11 @@
             },
 
             addNewNotification: function() {
-                //let emptyNotification = Object.assign( {},  );
                 this.settings.notifications.push( { ...this.notificationDefault } );
             },
 
             addNewCondition: function( index ) {
-                //let emptyNotification = Object.assign( {},  );
-                this.settings.notifications[ index ].conditions.push( { ...this.notificationDefault.condition } );
+                this.settings.notifications[ index ].conditions.push( { ...this.notificationDefault.conditions[0] } );
             },
 
             cloneNotification( index ) {
@@ -131,6 +139,16 @@
                 
                 delete newNotification.id;
                 this.settings.notifications.push( newNotification );
+            },
+
+            cloneCondition( index, cond_index ) {
+                this.settings.notifications[ index ].conditions.push( {
+                    ...this.settings.notifications[ index ].conditions[ cond_index ]
+                } );
+            },
+
+            deleteCondition( index, cond_index ) {
+                this.settings.notifications[ index ].conditions.splice( cond_index, 1 );
             },
 
             deleteNotification( index ) {

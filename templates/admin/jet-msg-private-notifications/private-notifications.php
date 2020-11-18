@@ -32,8 +32,8 @@
     <jet-msg-notifications-repeater
             :settings-prop="notifData"
             @save-notification="saveNotification"
-            :delete-ajax-hook="deleteNotification"
-            :default-notif-data="emptyNotification"
+            :delete-ajax-hook="deleteNotification()"
+            :chat-id="Number( chatData.id )"
             v-if="showEnabledIcon || chatData.status === 'enabled'"
     ></jet-msg-notifications-repeater>
 

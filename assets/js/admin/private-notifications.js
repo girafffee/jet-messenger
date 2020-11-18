@@ -21,24 +21,14 @@
             showSyncButton: false,
             showEnabledIcon: false,
             issetBots: window.JetMSGConfig.isset_bots,
-            emptyNotification: {
-                action: '',
-                do_action_on: '',
-                action_value: '',
-                bot_id: '',
-                message: '# hello',
-                collapsed: false,
-            },
             emptyChat: {
                 bot_slug: "telegram",
                 chat_id: '',
                 chat_type: '',
                 status: '',
                 sync_code: ''
-            }
-        },
-        mounted: function () {
-		    this.emptyNotification.jet_msg_chat_id = this.chatData.id
+            },
+            //jet_msg_chat_id: 0,
         },
 
         methods: {

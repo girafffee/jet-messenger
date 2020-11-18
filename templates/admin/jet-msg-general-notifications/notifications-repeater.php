@@ -10,7 +10,7 @@
                 v-for="( notif, index ) in settings.notifications"
                 :title="getNotificationTitle( index )"
                 :subtitle="getNotificationSubTitle( index )"
-                :collapsed="'true'"
+                :collapsed="true"
                 :index="index"
                 @clone-item="cloneNotification( index )"
                 @delete-item="deleteNotification( index )"
@@ -19,7 +19,7 @@
 		        <cx-vui-select
 					label="<?php _e( 'Bot from Messenger', 'jet-messenger' ); ?>"
 					description="<?php _e( 'Select the bot', 'jet-messenger' ); ?>"
-					:options-list="settings.botsList"
+					:options-list="botsList"
 					:wrapper-css="[ 'equalwidth' ]"
 					:placeholder="'Select...'"
 					size="fullwidth"
@@ -29,7 +29,7 @@
                 <cx-vui-select
 				    label="<?php _e( 'Action', 'jet-messenger' ); ?>"
 					description="<?php _e( 'Select the user`s action', 'jet-messenger' ); ?>"
-					:options-list="settings.actionsList"
+					:options-list="actionsList"
 					:wrapper-css="[ 'equalwidth' ]"
 					:placeholder="'Select...'"
 					size="fullwidth"
@@ -47,11 +47,11 @@
                                 v-for="( condition, cond_index ) in notif.conditions"
                                 :title="'Test title'"
                                 :subtitle="'subtitle'"
-                                :collapsed="'true'"
+                                :collapsed="true"
                                 :index="cond_index"
-                                @clone-item="cloneNotification( index )"
-                                @delete-item="deleteNotification( index )"
-                                :key="index"
+                                @clone-item="cloneCondition( index, cond_index )"
+                                @delete-item="deleteCondition( index, cond_index )"
+                                :key="'cond_' + cond_index"
                         >
                             <cx-vui-select
                                     label="<?php _e( 'Action Trigger', 'jet-messenger' ); ?>"
@@ -88,7 +88,7 @@
                         </span>
                         </cx-vui-button>
                     </div>
-                <div>
+                </div>
 
 			</cx-vui-repeater-item>
 		</cx-vui-repeater>
