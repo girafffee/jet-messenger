@@ -106,7 +106,6 @@ class Telegram_Manager {
     }
 
     public function set_private_notifications() {
-
         $this->private_notifications = jet_msg()->private_notifications->get_by_bot_id( $this->id );
         return ( ! empty( $this->private_notifications ) );
     }

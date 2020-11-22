@@ -3,6 +3,11 @@
 namespace JET_MSG\Api\Telegram\Actions;
 
 use JET_MSG\Api\Telegram\Methods\Send_Message;
+use JET_MSG\Conditions\Base_Condition;
+use JET_MSG\Exceptions\Failed_Send_Exception;
+use JET_MSG\Exceptions\Handler_Exception;
+use JET_MSG\Exceptions\Invalid_Condition;
+use JET_MSG\Exceptions\Invalid_Condition_Exception;
 use JET_MSG\Factory;
 
 /**
@@ -16,12 +21,11 @@ if ( ! defined( 'WPINC' ) ) {
 
 abstract class Base_Action {
 
-    public $do_action_on;
-    public $action_value;
     public $message;
     public $jet_msg_chat_id;
     public $chat_id;
     public $wp_action_name;
+    public $conditions;
     public $count_args = 3;
 
     public function __construct( $data ) {
@@ -38,7 +42,7 @@ abstract class Base_Action {
     }
 
     protected function parse( $notification ) {
-        $set_keys = [ 'do_action_on', 'action_value', 'message', 'jet_msg_chat_id' ];
+        $set_keys = [ 'conditions', 'message', 'jet_msg_chat_id' ];
 
         foreach ( $set_keys as $key ) {
             if ( isset( $notification[ $key ] ) ) {
@@ -48,19 +52,57 @@ abstract class Base_Action {
     }
 
     public function set_action() {
-    
-        $call_func = 'call_on_' . $this->do_action_on;
-        if( is_callable( [ $this, $call_func ] ) ) {
-            add_action( $this->wp_action_name, [ $this, $call_func ], 20, $this->count_args );
-        }        
+        if( ! is_callable( [ $this, 'call_action' ] ) ) {
+            return;
+        }
+        add_action($this->wp_action_name, [ $this, 'call_action' ], 20, $this->count_args);
+    }
+
+    private function prev_check_conditions() {
+        if ( empty( $this->conditions ) || ! is_array( $this->conditions ) ) {
+            throw new Invalid_Condition_Exception( 'Empty conditions' );
+        }
+    }
+
+
+    protected function check_conditions( $values ) {
+        $this->prev_check_conditions();
+
+        $factory = new Factory( 'JET_MSG\\Conditions\\', '_' );
+
+        foreach ( $this->conditions as $condition ) {
+            /**
+             * If value for this action type does not set
+             * in `call_action`
+             */
+            if ( ! isset( $values[ $condition->action_type ] ) ) {
+                throw new Invalid_Condition_Exception();
+            }
+            $value = $values[ $condition->action_type ];
+
+            $checker = $factory->create_one( $condition->action_type, array(
+                'condition' => $condition,
+                'values'    => $value
+            ) );
+
+            if ( ! $checker instanceof Base_Condition || ! $checker->check() ) {
+                throw new Invalid_Condition_Exception( 'Failed check' );
+            }
+
+        }
+
     }
 
     protected function send() {
-        return ( new Send_Message( [
+        $method = ( new Send_Message( [
             'chat_id'       => $this->chat_id,
             'text'          => $this->message,
             'parse_mode'    => 'html'
         ] ) )->execute();
+
+        if ( $method->response->ok !== 1 ) {
+            throw new Failed_Send_Exception( $method->response );
+        }
     }
 
     public function set_chat_id() {
@@ -89,7 +131,7 @@ abstract class Base_Action {
             $field_name = $parsed_field[0];
             unset( $parsed_field[0] );
 
-            $filters = $factory->add( $parsed_field );
+            $filters = $factory->create_many( $parsed_field );
 
             if ( $this->isset_value_array_or_object( $data_action, $field_name )
                 && in_array( $field_name, $this->allowed_fields() ) )

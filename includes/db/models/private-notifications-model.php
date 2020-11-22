@@ -19,13 +19,23 @@ class Private_Notifications_Model extends Base_Model {
 
     use Notification_Trait;
 
-   /**
+    /**
 	 * Returns table name
 	 * @return [type] [description]
 	 */
 	public function table_name() {
 		return 'private_notifications';
 	}
+
+    /*public function is_exists()
+    {
+        return (
+            parent::is_exists()
+            && $this->column_exists( 'do_action_on', false )
+            && $this->column_exists( 'action_value', false )
+            && $this->column_exists( 'conditions' )
+        );
+    }*/
 
 	public function column__action() {
 		return [
@@ -39,7 +49,7 @@ class Private_Notifications_Model extends Base_Model {
  			],
 			'jet_engine_form_submit'	=> [
 				'label'		=>  __( 'JetEngine Submit Form', 'jet-messenger' ),
-				'relation'	=> [ 'id', 'author_id' ]
+				'relation'	=> [ 'id', 'author_id', 'form_value' ]
 			],
 			'woo_place_order'			=> [
 				'label'		=> __( 'Woo Place Order', 'jet-messenger' ),
@@ -60,6 +70,9 @@ class Private_Notifications_Model extends Base_Model {
 			'author_id'			=> [
 				'label'		=> __( 'Author', 'jet-messenger' ),
 			],
+            'form_value'        => [
+                'label'     => __( 'Form Value', 'jet-messenger' )
+            ],
 			'taxonomy'			=> [
 				'label'		=> __( 'Taxonomy', 'jet-messenger' ),
  			],
@@ -82,9 +95,8 @@ class Private_Notifications_Model extends Base_Model {
 		return [
 			'id'                => 'bigint(20) NOT NULL AUTO_INCREMENT',
 			'jet_msg_chat_id'	=> 'int(11) NOT NULL',
-			'action'			=> "ENUM(". $this->inline_headers_of_column( 'action' ) .") NOT NULL",
-			'do_action_on'		=> "ENUM(". $this->inline_headers_of_column( 'do_action_on' ) .") NOT NULL",
-			'action_value'		=> 'varchar(100)',
+            'action'			=> "text NOT NULL",
+            'conditions'		=> "text",
 			'bot_id'			=> 'int(3)',
 			'message'			=> 'text',
 			'created_at'		=> 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
@@ -112,7 +124,7 @@ class Private_Notifications_Model extends Base_Model {
 	public function select_all_for_current_user() {
         $sql = 'SELECT ';
         $sql .= $this->generate_select_values([
-            'pn' => [ 'id', 'action', 'do_action_on', 'action_value', 'bot_id', 'message', 'jet_msg_chat_id' ],
+            'pn' => [ 'id', 'action', 'conditions', 'bot_id', 'message', 'jet_msg_chat_id' ],
             'ch' => [ 'wp_user_id', 'chat_id' ],
         ]);
 
@@ -123,7 +135,7 @@ class Private_Notifications_Model extends Base_Model {
         $sql .= " FROM ${table} JOIN ${table_join} ";
         $sql .= "ON pn.jet_msg_chat_id = ch.id AND ch.wp_user_id = ${current_user_id};";
 
-        return $this->wpdb_results( $sql, ARRAY_A);
+        return $this->parse_notifications( $this->wpdb_results( $sql, ARRAY_A) );
     }
 
 }

@@ -32,6 +32,7 @@ abstract class Base_Ajax_Manager {
         /** */
         $columns_data = $this->get_empty_columns();
 
+        //var_dump( $post_data ); die;
         foreach ( $columns_data as $column => $value ) {
 
             if ( ! isset( $post_data[ $column ] ) || empty( $post_data[ $column ] )
@@ -65,7 +66,7 @@ abstract class Base_Ajax_Manager {
 
             if ( ! empty( $this->fields[ $column ] ) && is_callable( [ $this, 'on_update_'.$column ] ) ) {
                 $func = 'on_update_'.$column;
-                $this->$func();
+                $this->fields[ $column ] = $this->$func( $this->fields[ $column ] );
             }
         }
     }

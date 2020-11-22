@@ -38,6 +38,14 @@ abstract class Base_Model extends Simple_Query_Builder {
     public $insert_columns;
 
     /**
+     * The names of the database columns that need to be removed if
+     * they existed
+     *
+     * @var array
+     */
+    public $drop_columns;
+
+    /**
 	 *
 	 */
 	public $defaults = array();
@@ -204,7 +212,10 @@ abstract class Base_Model extends Simple_Query_Builder {
             $this->after_create_table();
         }
 
-        if ( ! $this->columns_exists ) {
+        if ( ! empty( $this->drop_columns ) ) {
+            $this->delete_table_columns( $this->drop_columns );
+        }
+        if ( ! empty( $this->insert_columns ) ) {
             $this->insert_table_columns( $this->insert_columns );
         }
     }
@@ -224,7 +235,6 @@ abstract class Base_Model extends Simple_Query_Builder {
 			$table = $this->table();
 			$this->wpdb()->query( "DROP TABLE $table;" );
 		}
-
 		$sql = $this->get_table_schema();
 
 		dbDelta( $sql );
@@ -255,29 +265,37 @@ abstract class Base_Model extends Simple_Query_Builder {
 		$columns_schema = '';
 
 		foreach ( $columns as $column ) {
-			$columns_schema .= $column . ' text,';
+			$columns_schema .= 'ADD COLUMN ' . $column . ' text,';
 		}
-
 		$columns_schema = rtrim( $columns_schema, ',' );
 
-		$sql = "ALTER TABLE $table
-			ADD $columns_schema;";
+		$sql = "ALTER TABLE $table $columns_schema;";
 
 		$this->wpdb()->query( $sql );
-
 	}
 
-	/**
-	 * Check if booking DB column is exists
-	 *
-	 * @return [type] [description]
-	 */
-	public function column_exists( $column ) {
+    /**
+     * Check if booking DB column is exists
+     *
+     * @param $column
+     * @param bool $insert
+     * @return bool|false|int
+     */
+	public function column_exists( $column, $insert = true ) {
 		$table = $this->table();
 		$this->columns_exists = $this->wpdb()->query( "SHOW COLUMNS FROM `$table` LIKE '$column'" );
-		$this->insert_columns[] = $column;
 
-		return $this->columns_exists;
+		if ( ! $this->columns_exists && $insert ) {
+            $this->insert_columns[] = $column;
+        } elseif ( $this->columns_exists ) {
+		    $this->drop_columns[]   = $column;
+        }
+
+        if ( $insert ) {
+		    return ( $this->columns_exists == true );
+        } else {
+		    return $this->columns_exists == false;
+        }
 	}
 
 	/**
@@ -288,24 +306,15 @@ abstract class Base_Model extends Simple_Query_Builder {
 	 */
 	public function delete_table_columns( $columns ) {
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || empty( $columns ) ) {
 			return;
 		}
-
 		$table          = $this->table();
-		$columns_schema = '';
+		$columns_schema = 'DROP COLUMN ' . implode( ', DROP COLUMN ', $columns );
 
-		foreach ( $columns as $column ) {
-			$columns_schema .= $column . ',';
-		}
-
-		$columns_schema = rtrim( $columns_schema, ',' );
-
-		$sql = "ALTER TABLE $table
-			DROP COLUMN $columns_schema;";
+		$sql = "ALTER TABLE $table $columns_schema;";
 
 		$this->wpdb()->query( $sql );
-
 	}
 
 	/**

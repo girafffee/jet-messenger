@@ -71,10 +71,10 @@ class Plugin {
         }
          // Init DB installer
          $this->installer = new Jet_Messenger_DB_Install(
+            $this->chats,
             $this->general_options,
             $this->general_notifications,
-            $this->private_notifications,
-            $this->chats
+            $this->private_notifications
         );
         
         $this->telegram_manager = new Api\Telegram\Telegram_Manager();

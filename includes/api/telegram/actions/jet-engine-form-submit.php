@@ -3,6 +3,9 @@
 
 namespace JET_MSG\Api\Telegram\Actions;
 
+use JET_MSG\Exceptions\Failed_Send_Exception;
+use JET_MSG\Exceptions\Invalid_Condition_Exception;
+
 /**
  * Telegram manager
  */
@@ -19,33 +22,29 @@ class Jet_Engine_Form_Submit extends Base_Action
 
     public $form_object;
 
-    public function call_on_id( $jet_engine_form, $success ) {
+    public function call_action( $jet_engine_form, $success ) {
         if ( ! $success ) return;
 
         $this->form_object = $jet_engine_form;
 
-        if ( $this->form_object->form == $this->action_value )
-        {
-            $this->set_dynamic_fields( $this->form_object->notifcations->data );
-            $this->send()->response;
-        }
-    }
+        try {
+            $this->check_conditions( array(
+                'id'            => $jet_engine_form->form,
+                'author_id'     => get_current_user_id(),
+                'form_value'    => $jet_engine_form->notifcations->data
+            ) );
 
-    public function call_on_author_id( $jet_engine_form, $success ) {
-        if ( ! $success ) return;
-
-        $this->form_object = $jet_engine_form;
-
-        if ( get_current_user_id() == $this->action_value )
-        {
             $this->set_dynamic_fields( $this->form_object->notifcations->data );
             $this->send();
         }
+        catch ( Failed_Send_Exception $exception ) {
+            $exception->get_response();
+        }
+        catch ( Invalid_Condition_Exception $exception ) {}
+
     }
 
     public function allowed_fields() {
-        $form_fields = array_keys( $this->form_object->notifcations->data );
-
-        return $form_fields;
+        return array_keys( $this->form_object->notifcations->data );
     }
 }

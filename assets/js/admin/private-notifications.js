@@ -161,7 +161,7 @@
 
                         if ( mode === 'insert_mode' ){
                             self.attachInsertedId( response.data.id, self.chatData );
-                            self.emptyNotification.jet_msg_chat_id = response.data.id;
+                            self.chatData.id = response.data.id;
                         }
                         self.showSyncButton = true;
                         self.showEnabledIcon = false;

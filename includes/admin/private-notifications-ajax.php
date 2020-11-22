@@ -14,6 +14,10 @@ class Private_Notifications_Ajax extends Base_Ajax_Manager {
         add_action( 'wp_ajax_jet_msg_delete_private_notification', [ $this, 'ajax_delete_data' ] );
     }
 
+    public function on_update_conditions( $conditions ) {
+        return json_encode( $conditions );
+    }
+
     public function set_messages() {
         $this->messages = [
             'insert' => [

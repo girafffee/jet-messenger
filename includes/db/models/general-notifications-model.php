@@ -26,17 +26,18 @@ class General_Notifications_Model extends Base_Model {
 	public function table_name() {
 		return 'general_notifications';
 	}
-		/**
-			 * Turned it off because 
-			 * I could not fix sending two messages 
-			 * at once when the post update hook
-			 */
-			// 'update_post' 				=> [
-			// 	'label'		=> __( 'Update Post', 'jet-messenger' ),
-			// 	'relation'	=> [ 'id', 'author_id', 'taxonomy', 'post_type', 'relation_parent', 'relation_child' ]
-			// ],
 
-	public function column__action() {
+    /*public function is_exists()
+    {
+        return (
+            parent::is_exists()
+            && $this->column_exists( 'do_action_on', false )
+            && $this->column_exists( 'action_value', false )
+            && $this->column_exists( 'conditions' )
+        );
+    }*/
+
+    public function column__action() {
 		return [
 			'new_post' 					=> [
 				'label'		=> __( 'New Post', 'jet-messenger' ),
@@ -81,16 +82,20 @@ class General_Notifications_Model extends Base_Model {
 	public function schema() {
 		return [
 			'id'                => 'bigint(20) NOT NULL AUTO_INCREMENT',
-			'action'			=> "ENUM(". $this->inline_headers_of_column( 'action' ) .") NOT NULL",
-			'do_action_on'		=> "ENUM(". $this->inline_headers_of_column( 'do_action_on' ) .") NOT NULL",
-			'action_value'		=> 'varchar(100)',
+			'action'			=> "text NOT NULL",
+			'conditions'		=> "text",
 			'bot_id'			=> 'int(3)',
 			'message'			=> 'text',
 			'created_at'		=> 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
 			'updated_at'		=> 'TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL'
         ];
     }
-    
+
+    public function select_all()
+    {
+        return $this->parse_notifications( parent::select_all() );
+    }
+
     /**
 	 * Returns schemas options
      * Such as primary keys, charset

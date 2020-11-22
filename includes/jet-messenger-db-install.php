@@ -44,15 +44,18 @@ class Jet_Messenger_DB_Install {
     }
 
     public function checks_is_exists() {
+        $result = true;
+
         foreach ( $this->models as $model ) {
             if ( ! $model->is_exists() ) {
-                return false;
+                $result = false;
+                continue;
             }
             $this->is_exists[ $model->table() ] = true;
         }
         $this->is_check_completed = true;
 
-        return true;
+        return $result;
     }
 
     /**

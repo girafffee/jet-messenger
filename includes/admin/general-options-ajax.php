@@ -99,7 +99,7 @@ class General_Options_Ajax extends Base_Ajax_Manager {
         return get_current_user_id();
     }
 
-    public function on_update_channel_name() {
+    public function on_update_channel_name( $value ) {
         $text = __( 'This channel has been successfully connected to the ', 'jet-messenger' ) . get_bloginfo( 'name' );
 
         $message = new Send_Message( [
@@ -109,6 +109,8 @@ class General_Options_Ajax extends Base_Ajax_Manager {
         ], $this->get( 'bot_token' ) );
 
         $this->set( 'channel_id', $message->execute()->get_chat_id() );
+
+        return $value;
     }
 
     public function get_all_bots() {

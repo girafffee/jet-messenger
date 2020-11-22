@@ -51,6 +51,7 @@ class General_Notifications_Page extends Base {
 			$fields = [
 				'actions_list'			=> $this->prepare_for_js_select( jet_msg()->general_notifications->column__action() ),
 				'actions_on'			=> $this->prepare_for_js_select( jet_msg()->general_notifications->column__do_action_on() ),
+                'operators_for_form'    => $this->prepare_for_js_select( jet_msg()->private_notifications->get_operators_options() ),
 				'notifications_list'	=> jet_msg()->general_notifications->select_all(),
                 'conditions'            => array(),
 				'active_bots_list'		=> $active_bots,

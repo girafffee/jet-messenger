@@ -17,20 +17,23 @@
 
         data: function () {
             return {
+                defaultCondition: {
+                    action_value: '',
+                    action_type: '',
+                    operator: '',
+                },
                 settings: this.settingsProp,
                 notificationDefault: {
                     action: '',
-                    conditions: [ {
-                        action_value: '',
-                        do_action_on: '',
-                    } ],
+                    conditions: [],
                     bot_id: '',
                     message: 'Hello world',
                     jet_msg_chat_id: this.chatId,
                     collapsed: false,
                 },
                 actionsList: this.prepareForSelectOptions( this.settingsProp.actionsList ),
-                botsList: this.prepareForSelectOptions( this.settingsProp.botsList )
+                botsList: this.prepareForSelectOptions( this.settingsProp.botsList ),
+                operators_for_form: window.JetMSGConfig.operators_for_form || [],
             };
         },
         mounted: function() {
@@ -76,7 +79,7 @@
                 let notif = self.settings.notifications[ index ];
 
                 if ( notif.action === '' ) {
-                    return self.settings.actionsOn;
+                    return self.prepareForSelectOptions( self.settings.actionsOn );
                 }
 
                 let relations = self.settings.actionsList[ notif.action ].relation;
@@ -107,6 +110,41 @@
                 return title;
             },
 
+            getConditionTitle( index, cond_index ) {
+                const condition = this.settings.notifications[ index ].conditions[ cond_index ];
+
+                if ( ! condition.action_type ) {
+                    return 'Condition';
+                }
+
+                return this.settings.actionsOn[ condition.action_type ].label;
+            },
+
+            getConditionSubTitle( index, cond_index ) {
+                const condition = this.settings.notifications[ index ].conditions[ cond_index ];
+                const subTitle = [];
+
+                if ( condition.action_type && condition.action_type === 'form_value' && condition.field_name ) {
+                    subTitle.push( condition.field_name );
+                } else if( condition.action_type && condition.action_type === 'form_value' ) {
+                    subTitle.push( '[field]' );
+                }
+
+                if ( condition.operator ) {
+                    subTitle.push( condition.operator );
+                } else {
+                    subTitle.push( '[operator]' );
+                }
+
+                if ( condition.action_value ) {
+                    subTitle.push( condition.action_value );
+                } else {
+                    subTitle.push( '[value]' );
+                }
+
+                return subTitle.join(' ');
+            },
+
             getNotificationSubTitle( index ) {
                 if ( ! this.settings.notifications[ index ].action ) {
                     return '';
@@ -127,11 +165,11 @@
             },
 
             addNewNotification: function() {
-                this.settings.notifications.push( { ...this.notificationDefault } );
+                this.settings.notifications.push( { ...this.notificationDefault, conditions: [] } );
             },
 
             addNewCondition: function( index ) {
-                this.settings.notifications[ index ].conditions.push( { ...this.notificationDefault.conditions[0] } );
+                this.settings.notifications[ index ].conditions.push( { ...this.defaultCondition } );
             },
 
             cloneNotification( index ) {

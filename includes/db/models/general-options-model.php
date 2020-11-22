@@ -88,10 +88,10 @@ class General_Options_Model extends Base_Model {
         return true;
     }
 
-    public function is_exists()
+    /*public function is_exists()
     {
         return parent::is_exists() && $this->column_exists( 'bot_label' );
-    }
+    }*/
 
 
     public function table_name() {
