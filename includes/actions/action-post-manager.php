@@ -1,6 +1,6 @@
 <?php
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 /**
  * Telegram manager
@@ -18,7 +18,7 @@ abstract class Action_Post_Manager extends Base_Action {
     public $is_send = false;
 
 
-    public function allowed_fields() {
+    public function action_allowed_fields() {
         return [
             'ID',
             'post_author',

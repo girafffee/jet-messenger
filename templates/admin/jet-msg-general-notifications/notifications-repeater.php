@@ -98,19 +98,26 @@
                             </cx-vui-repeater>
 
                         </div>
-                        <div id="jet-msg__editor">
-                            <textarea :value="notif.message" @input="updateEditor( $event, index )"></textarea>
-                            <div class="result" v-html="compiledMarkdown( index )"></div>
-                            <div class="save-button">
-                                <cx-vui-button
-                                        @click="saveNotification( index )"
-                                        button-style="accent"
-                                >
-                                <span slot="label">
-                                    <?php esc_html_e( 'Save Notification', 'jet-messenger' );?>
-                                </span>
-                                </cx-vui-button>
-                            </div>
+                        <cx-vui-textarea
+                                :rows="15"
+                                id="message-notification"
+                                :description="'<?php _e( '<br>You can use <b>macros</b> here<br>Example: <i><b>%field_name%</b></i><br><br>You can also filter the output of received data through <b>filters</b><br>Example: <i><b>%field_name|filter_name|name_param:value%</b></i>','jet-engine' ); ?>'"
+                                label="<?php _e( 'Message', 'jet-engine' ); ?>"
+                                :wrapper-css="[ 'equalwidth' ]"
+                                size="fullwidth"
+                                @on-input-change="onInputMessage( $event, index )"
+                                v-model="notif.message"
+                        ></cx-vui-textarea>
+                        <div class="save-notification-button">
+                            <cx-vui-button
+                                    @click="saveNotification( index )"
+                                    :button-style="'accent'"
+                                    :button-size="'mini'"
+                            >
+                                    <span slot="label">
+                                        <?php esc_html_e( 'Save Notification', 'jet-messenger' );?>
+                                    </span>
+                            </cx-vui-button>
                         </div>
                     </template>
                 </template>

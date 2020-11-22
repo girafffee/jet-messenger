@@ -1,14 +1,14 @@
 <?php
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 use JET_MSG\Api\Telegram\Methods\Send_Message;
 use JET_MSG\Conditions\Base_Condition;
 use JET_MSG\Exceptions\Failed_Send_Exception;
-use JET_MSG\Exceptions\Handler_Exception;
-use JET_MSG\Exceptions\Invalid_Condition;
 use JET_MSG\Exceptions\Invalid_Condition_Exception;
 use JET_MSG\Factory;
+use JET_MSG\Filters\Base_Filter;
+use JET_MSG\Filters\Filter_Interface;
 
 /**
  * Telegram manager
@@ -27,6 +27,8 @@ abstract class Base_Action {
     public $wp_action_name;
     public $conditions;
     public $count_args = 3;
+
+    private $factory_filters;
 
     public function __construct( $data ) {
         $this->parse( $data );
@@ -68,7 +70,7 @@ abstract class Base_Action {
     protected function check_conditions( $values ) {
         $this->prev_check_conditions();
 
-        $factory = new Factory( 'JET_MSG\\Conditions\\', '_' );
+        $factory = new Factory( 'JET_MSG\\Conditions\\' );
 
         foreach ( $this->conditions as $condition ) {
             /**
@@ -86,7 +88,7 @@ abstract class Base_Action {
             ) );
 
             if ( ! $checker instanceof Base_Condition || ! $checker->check() ) {
-                throw new Invalid_Condition_Exception( 'Failed check' );
+                throw new Invalid_Condition_Exception( $checker );
             }
 
         }
@@ -100,7 +102,7 @@ abstract class Base_Action {
             'parse_mode'    => 'html'
         ] ) )->execute();
 
-        if ( $method->response->ok !== 1 ) {
+        if ( ! $method->response->ok ) {
             throw new Failed_Send_Exception( $method->response );
         }
     }
@@ -124,17 +126,13 @@ abstract class Base_Action {
 
     public function set_dynamic_fields( $data_action ) {
         $dynamic_fields = explode( '%', $this->message );
-        $factory = new Factory( 'JET_MSG\\Filters\\' );
+        $this->factory_filters = new Factory( 'JET_MSG\\Filters\\' );
 
         foreach ( $dynamic_fields as $index => $field ) {
-            $parsed_field = explode( '|', $field );
-            $field_name = $parsed_field[0];
-            unset( $parsed_field[0] );
-
-            $filters = $factory->create_many( $parsed_field );
+            [ $field_name, $filter ] = $this->get_macros_name_and_filters( $field );
 
             if ( $this->isset_value_array_or_object( $data_action, $field_name )
-                && in_array( $field_name, $this->allowed_fields() ) )
+                && in_array( $field_name, $this->action_allowed_fields() ) )
             {
                 $dynamic_fields[ $index ] = $this->get_value_array_or_object( $data_action, $field_name );
 
@@ -143,26 +141,40 @@ abstract class Base_Action {
                     $dynamic_fields[ $index ] = $this->custom_filter_fields()[ $field_name ]( $dynamic_fields[ $index ] );
                 }
 
-                $dynamic_fields[ $index ] = $this->parse_filters( $filters, $dynamic_fields[ $index ] );
+                $dynamic_fields[ $index ] = $this->parse_filters( $filter, $dynamic_fields[ $index ] );
+
+            } elseif ( in_array( $field_name, $this->inject_fields() ) ) {
+                $dynamic_fields[ $index ] = $this->parse_filters( $filter );
             }
         }
         $this->message = strip_tags( implode( '', $dynamic_fields ) );
     }
 
-    public function parse_filters( array $filters, $value ) {
-        if ( empty( $filters ) ) {
+    public function parse_filters( $filter, $value = '' ) {
+        if ( ! $filter instanceof Base_Filter ) {
             return $value;
         }
 
-        foreach ( $filters as $filter ) {
-            $value = $filter->filter( $value );
-        }
-
-        return $value;
+        return $filter->filter( $value );
     }
 
-    public function allowed_fields() {
-        return [];
+    /**
+     * Only for apply filters without data
+     * @return array
+     */
+    public function inject_fields() {
+        return array(
+            '__inject__'
+        );
+    }
+
+    /**
+     * You can override this method in your action
+     *
+     * @return array
+     */
+    public function action_allowed_fields() {
+        return array();
     }
 
     public function custom_filter_fields() {
@@ -194,6 +206,39 @@ abstract class Base_Action {
         ];
 
         return implode( ' ', $name );
+    }
+
+    /**
+     * %<macros_name>|<name_of_filter>|<param_1>|<param_2>|...%
+     * @param $field
+     * @return array
+     */
+    public function get_macros_name_and_filters( $field ) {
+        $parsed_field = explode( '|', $field );
+
+        $field_name = $parsed_field[0];
+        unset( $parsed_field[0] );
+
+        if ( isset( $parsed_field[1] ) ) {
+            $filter_name = $parsed_field[1];
+            unset( $parsed_field[1] );
+
+            /**
+             * $param should be like name_param:param_value
+             */
+            foreach ( $parsed_field as $key => $param ) {
+                $param = array_map( 'trim', explode( ':', $param ) );
+
+                $parsed_field[ $param[0] ] = isset( $param[1] ) ? $param[1] : null;
+                unset( $parsed_field[ $key ] );
+            }
+
+            $filter = $this->factory_filters->create_one( $filter_name, $parsed_field );
+
+            return array( $field_name, $filter );
+        }
+
+        return array( $field_name, null );
     }
 
 

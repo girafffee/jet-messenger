@@ -1,11 +1,4 @@
-#jet-msg__editor {
-    margin: 0;
-    padding: 1em;
-    height: 400px;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #333;
-}
-#jet-msg__editor textarea {
+#message-notification textarea.cx-vui-textarea {
     border: none;
     border-right: 1px solid #ccc;
     resize: none;
@@ -15,37 +8,27 @@
     font-family: "Monaco", courier, monospace;
     padding: 20px;
 }
-#jet-msg__editor textarea, #jet-msg__editor div {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 20px;
-    overflow: auto;
-    height: 100%;
-    width: 39.5%;
-    vertical-align: top;
-}
-#jet-msg__editor div.save-button {
-    width: 20%;
+
+.save-notification-button {
     text-align: right;
-    position: relative;
+    padding: 20px;
 }
-#jet-msg__editor div.save-button button {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
+
 .jet-msg-notifications .cx-vui-panel {
     padding: 1.3em;
 }
+
 .jet-msg-notifications .save-button {
     text-align: right;
 }
+
 .jet-msg-notifications__none {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 350px;
 }
+
 .jet-msg-notifications__none .cx-vui-panel {
     width: 50%;
     display: flex;
@@ -55,11 +38,13 @@
     padding: 1.3em;
     height: 180px;
 }
+
 .jet-msg-notifications__none .cx-vui-panel .description {
     font-size: 15px;
     line-height: 23px;
-    color: #7b7e81;
+    color: #7B7E81;
 }
+
 .jet-msg-notifications-repeater .cx-vui-inner-panel {
     background: #f1f1f1;
 }

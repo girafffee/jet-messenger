@@ -1,41 +1,18 @@
-#jet-msg__editor {
-    margin: 0;
-    padding: 1em;
-    height: 400px;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #333;
-    textarea {
-        border: none;
-        border-right: 1px solid #ccc;
-        resize: none;
-        outline: none;
-        background-color: #f6f6f6;
-        font-size: 14px;
-        font-family: "Monaco", courier, monospace;
-        padding: 20px;
-    }
-    
-    textarea, div {
-        display: inline-block;
-        box-sizing: border-box;
-        padding: 20px;
-        overflow: auto;
-        height: 100%;
-        width: 39.5%;
-        vertical-align: top;
-    }
 
-    div.save-button{
-        width: 20%;
-        text-align: right;
-        position: relative;
+#message-notification textarea.cx-vui-textarea {
+    border: none;
+    border-right: 1px solid #ccc;
+    resize: none;
+    outline: none;
+    background-color: #f6f6f6;
+    font-size: 14px;
+    font-family: "Monaco", courier, monospace;
+    padding: 20px;
+}
 
-        button {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-        }
-    }
+.save-notification-button {
+    text-align: right;
+    padding: 20px;
 }
 
 .jet-msg-notifications {

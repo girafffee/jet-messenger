@@ -60,6 +60,14 @@ class Plugin {
         new Admin\Private_Notifications_Ajax();
         new Admin\Chats_Ajax();
 
+        // Init DB installer
+        $this->installer = new Jet_Messenger_DB_Install(
+            $this->chats,
+            $this->general_options,
+            $this->general_notifications,
+            $this->private_notifications
+        );
+
         if ( is_admin() ) {
 
             $this->dashboard = new Admin\Dashboard( [
@@ -69,16 +77,8 @@ class Plugin {
             ] );
         
         }
-         // Init DB installer
-         $this->installer = new Jet_Messenger_DB_Install(
-            $this->chats,
-            $this->general_options,
-            $this->general_notifications,
-            $this->private_notifications
-        );
-        
+
         $this->telegram_manager = new Api\Telegram\Telegram_Manager();
-        
     }
 
     /**
@@ -91,7 +91,7 @@ class Plugin {
         $this->register_style( 'jet-msg-general-notifications-admin', 'admin/general-notifications.css' );
         $this->register_style( 'jet-msg-private-notifications-admin', 'admin/private-notifications.css' );
 
-        wp_register_script( 'jet-msg-general-notifications-marked', 'https://unpkg.com/marked@0.3.6', [ 'wp-api-fetch' ], $this->version());
+        //wp_register_script( 'jet-msg-general-notifications-marked', 'https://unpkg.com/marked@0.3.6', [ 'wp-api-fetch' ], $this->version());
         $this->register_script( 'jet-msg-notifications-repeater', 'admin/notification-repeater.js' );
         $this->register_script( 'jet-msg-private-notifications', 'admin/private-notifications.js' );        
     }

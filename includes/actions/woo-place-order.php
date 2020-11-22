@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 
 class Woo_Place_Order extends Base_Action
@@ -78,7 +78,7 @@ class Woo_Place_Order extends Base_Action
         }
     }
 
-    public function allowed_fields() {
+    public function action_allowed_fields() {
         return array_keys( $this->all_data );
     }
 

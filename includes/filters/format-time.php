@@ -2,9 +2,16 @@
 
 namespace JET_MSG\Filters;
 
-class Format_Time implements Filter_Interface
+class Format_Time extends Base_Filter
 {
-    public function filter( $value )
+    protected function default_params()
+    {
+        return array(
+            'format' => 'Y-m-d H:i:s'
+        );
+    }
+
+    public function filter( $value = '' )
     {
         $timestamp = absint( $value );
 
@@ -12,7 +19,7 @@ class Format_Time implements Filter_Interface
             return $value;
         }
 
-        return date( 'Y-m-d H:i:s', $timestamp );
+        return date( $this->params[ 'format' ], $timestamp );
     }
 
 }

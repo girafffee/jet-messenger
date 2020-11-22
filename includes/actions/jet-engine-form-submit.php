@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 use JET_MSG\Exceptions\Failed_Send_Exception;
 use JET_MSG\Exceptions\Invalid_Condition_Exception;
@@ -38,13 +38,15 @@ class Jet_Engine_Form_Submit extends Base_Action
             $this->send();
         }
         catch ( Failed_Send_Exception $exception ) {
-            $exception->get_response();
+            //$exception->get_response();
         }
-        catch ( Invalid_Condition_Exception $exception ) {}
+        catch ( Invalid_Condition_Exception $exception ) {
+            //var_dump( $exception->get_response() ); die;
+        }
 
     }
 
-    public function allowed_fields() {
+    public function action_allowed_fields() {
         return array_keys( $this->form_object->notifcations->data );
     }
 }

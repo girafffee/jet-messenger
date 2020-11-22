@@ -1,6 +1,6 @@
 <?php
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 /**
  * Telegram manager

@@ -40,6 +40,16 @@
             //
         },
         methods: {
+            onInputMessage( event, index ) {
+                if ( typeof event.target.value === 'undefined' ) {
+                    return;
+                }
+                this.$set(
+                    this.settings.notifications[ index ],
+                    'message',
+                    event.target.value.replaceAll( '"', '*' )
+                );
+            },
 
 		    prepareForSelectOptions( object ) {
 		        const values = Object.values( object );
@@ -47,17 +57,6 @@
 		        return values.map( ( { value, label } ) => {
 		            return { value, label };
                 } );
-            },
-
-            isValuesReady: function ( index ) {
-                let notif = this.settings.notifications[ index ];
-                if ( ! notif ) return;
-
-                return ( ! Boolean( notif.bot_id && notif.action && notif.do_action_on && notif.action_value ) );
-            },
-
-            compiledMarkdown: function( index ) {
-                return marked( this.settings.notifications[ index ].message, { sanitize: true } );
             },
 
             updateEditor( e, index ) {

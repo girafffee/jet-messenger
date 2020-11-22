@@ -1,6 +1,6 @@
 <?php
 
-namespace JET_MSG\Api\Telegram\Actions;
+namespace JET_MSG\Actions;
 
 /**
  * Telegram manager
@@ -43,7 +43,7 @@ class New_Comment extends Base_Action {
         }
     }
 
-    public function allowed_fields() {
+    public function action_allowed_fields() {
         return [
             'comment_post_ID',
             'comment_author',

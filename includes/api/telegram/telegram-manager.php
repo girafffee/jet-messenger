@@ -71,7 +71,7 @@ class Telegram_Manager {
     public function attach_notification_actions( $notifications ) {
         if ( empty( $notifications ) ) return;
 
-        $namespace = 'JET_MSG\\Api\\Telegram\\Actions\\';
+        $namespace = 'JET_MSG\\Actions\\';
 
         foreach ( $notifications as $notif )
         {
